@@ -12,6 +12,7 @@ struct Poem: Codable, Identifiable, Hashable {
     let title: String
     let author: String
     let dynasty: String
+    let category: String
     let grade: Int
     let paragraphs: [String]
     let translation: String?

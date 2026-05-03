@@ -4,6 +4,7 @@
     "title": "咏鹅",
     "author": "骆宾王",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 1,
     "paragraphs": [
       "鹅，鹅，鹅，曲项向天歌。",
@@ -16,6 +17,7 @@
     "title": "江南",
     "author": "汉乐府",
     "dynasty": "汉",
+    "category": "唐诗",
     "grade": 1,
     "paragraphs": [
       "江南可采莲，莲叶何田田。",
@@ -30,6 +32,7 @@
     "title": "画",
     "author": "王维",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 1,
     "paragraphs": [
       "远看山有色，近听水无声。",
@@ -42,6 +45,7 @@
     "title": "悯农（其二）",
     "author": "李绅",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 1,
     "paragraphs": [
       "锄禾日当午，汗滴禾下土。",
@@ -54,6 +58,7 @@
     "title": "古朗月行",
     "author": "李白",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 1,
     "paragraphs": [
       "小时不识月，呼作白玉盘。",
@@ -66,6 +71,7 @@
     "title": "风",
     "author": "李峤",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 1,
     "paragraphs": [
       "解落三秋叶，能开二月花。",
@@ -78,6 +84,7 @@
     "title": "登鹳雀楼",
     "author": "王之涣",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 2,
     "paragraphs": [
       "白日依山尽，黄河入海流。",
@@ -90,6 +97,7 @@
     "title": "望庐山瀑布",
     "author": "李白",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 2,
     "paragraphs": [
       "日照香炉生紫烟，遥看瀑布挂前川。",
@@ -102,6 +110,7 @@
     "title": "黄鹤楼送孟浩然之广陵",
     "author": "李白",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 2,
     "paragraphs": [
       "故人西辞黄鹤楼，烟花三月下扬州。",
@@ -114,6 +123,7 @@
     "title": "早发白帝城",
     "author": "李白",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 2,
     "paragraphs": [
       "朝辞白帝彩云间，千里江陵一日还。",
@@ -126,6 +136,7 @@
     "title": "江雪",
     "author": "柳宗元",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 2,
     "paragraphs": [
       "千山鸟飞绝，万径人踪灭。",
@@ -138,6 +149,7 @@
     "title": "夜宿山寺",
     "author": "李白",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 2,
     "paragraphs": [
       "危楼高百尺，手可摘星辰。",
@@ -150,6 +162,7 @@
     "title": "敕勒歌",
     "author": "北朝民歌",
     "dynasty": "南北朝",
+    "category": "唐诗",
     "grade": 2,
     "paragraphs": [
       "敕勒川，阴山下。",
@@ -164,6 +177,7 @@
     "title": "望天门山",
     "author": "李白",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 3,
     "paragraphs": [
       "天门中断楚江开，碧水东流至此回。",
@@ -176,18 +190,20 @@
     "title": "饮湖上初晴后雨",
     "author": "苏轼",
     "dynasty": "宋",
+    "category": "宋词",
     "grade": 3,
     "paragraphs": [
       "水光潋滟晴方好，山色空蒙雨亦奇。",
       "欲把西湖比西子，淡妆浓抹总相宜。"
     ],
-    "translation": "晴天时西湖水波闪动特别好看，雨天时山色朦胧也很奇妙。如果把西湖比作美女西施，不管淡妆还是浓抹都那么美丽。"
+    "translation": "晴天时西湖水波闪动特别好看，雨天时山色朦胧也很奇妙。如果把西湖比作美女西施，不管淡妆还是浓妆都那么美丽。"
   },
   {
     "id": "p016",
     "title": "望洞庭",
     "author": "刘禹锡",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 3,
     "paragraphs": [
       "湖光秋月两相和，潭面无风镜未磨。",
@@ -200,6 +216,7 @@
     "title": "早春呈水部张十八员外",
     "author": "韩愈",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 3,
     "paragraphs": [
       "天街小雨润如酥，草色遥看近却无。",
@@ -212,6 +229,7 @@
     "title": "绝句",
     "author": "杜甫",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 3,
     "paragraphs": [
       "两个黄鹂鸣翠柳，一行白鹭上青天。",
@@ -224,6 +242,7 @@
     "title": "滁州西涧",
     "author": "韦应物",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 3,
     "paragraphs": [
       "独怜幽草涧边生，上有黄鹂深树鸣。",
@@ -236,6 +255,7 @@
     "title": "三衢道中",
     "author": "曾几",
     "dynasty": "宋",
+    "category": "宋词",
     "grade": 3,
     "paragraphs": [
       "梅子黄时日日晴，小溪泛尽却山行。",
@@ -248,6 +268,7 @@
     "title": "忆江南",
     "author": "白居易",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 3,
     "paragraphs": [
       "江南好，风景旧曾谙。",
@@ -261,6 +282,7 @@
     "title": "大林寺桃花",
     "author": "白居易",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 3,
     "paragraphs": [
       "人间四月芳菲尽，山寺桃花始盛开。",
@@ -273,6 +295,7 @@
     "title": "元日",
     "author": "王安石",
     "dynasty": "宋",
+    "category": "宋词",
     "grade": 3,
     "paragraphs": [
       "爆竹声中一岁除，春风送暖入屠苏。",
@@ -285,6 +308,7 @@
     "title": "题西林壁",
     "author": "苏轼",
     "dynasty": "宋",
+    "category": "宋词",
     "grade": 4,
     "paragraphs": [
       "横看成岭侧成峰，远近高低各不同。",
@@ -297,6 +321,7 @@
     "title": "游山西村",
     "author": "陆游",
     "dynasty": "宋",
+    "category": "宋词",
     "grade": 4,
     "paragraphs": [
       "莫笑农家腊酒浑，丰年留客足鸡豚。",
@@ -309,6 +334,7 @@
     "title": "凉州词",
     "author": "王翰",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 4,
     "paragraphs": [
       "葡萄美酒夜光杯，欲饮琵琶马上催。",
@@ -321,6 +347,7 @@
     "title": "夏日绝句",
     "author": "李清照",
     "dynasty": "宋",
+    "category": "宋词",
     "grade": 4,
     "paragraphs": [
       "生当作人杰，死亦为鬼雄。",
@@ -333,6 +360,7 @@
     "title": "出塞",
     "author": "王昌龄",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 4,
     "paragraphs": [
       "秦时明月汉时关，万里长征人未还。",
@@ -345,6 +373,7 @@
     "title": "芙蓉楼送辛渐",
     "author": "王昌龄",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 4,
     "paragraphs": [
       "寒雨连江夜入吴，平明送客楚山孤。",
@@ -357,6 +386,7 @@
     "title": "塞下曲",
     "author": "卢纶",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 4,
     "paragraphs": [
       "月黑雁飞高，单于夜遁逃。",
@@ -369,6 +399,7 @@
     "title": "蜂",
     "author": "罗隐",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 4,
     "paragraphs": [
       "不论平地与山尖，无限风光尽被占。",
@@ -381,6 +412,7 @@
     "title": "独坐敬亭山",
     "author": "李白",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 4,
     "paragraphs": [
       "众鸟高飞尽，孤云独去闲。",
@@ -393,6 +425,7 @@
     "title": "回乡偶书",
     "author": "贺知章",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 4,
     "paragraphs": [
       "少小离家老大回，乡音无改鬓毛衰。",
@@ -405,6 +438,7 @@
     "title": "示儿",
     "author": "陆游",
     "dynasty": "宋",
+    "category": "宋词",
     "grade": 5,
     "paragraphs": [
       "死去元知万事空，但悲不见九州同。",
@@ -417,6 +451,7 @@
     "title": "题临安邸",
     "author": "林升",
     "dynasty": "宋",
+    "category": "宋词",
     "grade": 5,
     "paragraphs": [
       "山外青山楼外楼，西湖歌舞几时休？",
@@ -429,6 +464,7 @@
     "title": "己亥杂诗",
     "author": "龚自珍",
     "dynasty": "清",
+    "category": "唐诗",
     "grade": 5,
     "paragraphs": [
       "九州生气恃风雷，万马齐喑究可哀。",
@@ -441,6 +477,7 @@
     "title": "枫桥夜泊",
     "author": "张继",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 5,
     "paragraphs": [
       "月落乌啼霜满天，江枫渔火对愁眠。",
@@ -453,6 +490,7 @@
     "title": "长相思",
     "author": "纳兰性德",
     "dynasty": "清",
+    "category": "唐诗",
     "grade": 5,
     "paragraphs": [
       "山一程，水一程，身向榆关那畔行，夜深千帐灯。",
@@ -465,6 +503,7 @@
     "title": "渔歌子",
     "author": "张志和",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 5,
     "paragraphs": [
       "西塞山前白鹭飞，桃花流水鳜鱼肥。",
@@ -477,6 +516,7 @@
     "title": "观书有感",
     "author": "朱熹",
     "dynasty": "宋",
+    "category": "宋词",
     "grade": 5,
     "paragraphs": [
       "半亩方塘一鉴开，天光云影共徘徊。",
@@ -489,6 +529,7 @@
     "title": "秋夕",
     "author": "杜牧",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 5,
     "paragraphs": [
       "银烛秋光冷画屏，轻罗小扇扑流萤。",
@@ -501,6 +542,7 @@
     "title": "所见",
     "author": "袁枚",
     "dynasty": "清",
+    "category": "唐诗",
     "grade": 5,
     "paragraphs": [
       "牧童骑黄牛，歌声振林樾。",
@@ -513,6 +555,7 @@
     "title": "山居秋暝",
     "author": "王维",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 5,
     "paragraphs": [
       "空山新雨后，天气晚来秋。",
@@ -527,6 +570,7 @@
     "title": "春夜喜雨",
     "author": "杜甫",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 6,
     "paragraphs": [
       "好雨知时节，当春乃发生。",
@@ -541,6 +585,7 @@
     "title": "闻官军收河南河北",
     "author": "杜甫",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 6,
     "paragraphs": [
       "剑外忽传收蓟北，初闻涕泪满衣裳。",
@@ -555,6 +600,7 @@
     "title": "江畔独步寻花",
     "author": "杜甫",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 6,
     "paragraphs": [
       "黄四娘家花满蹊，千朵万朵压枝低。",
@@ -567,6 +613,7 @@
     "title": "泊船瓜洲",
     "author": "王安石",
     "dynasty": "宋",
+    "category": "宋词",
     "grade": 6,
     "paragraphs": [
       "京口瓜洲一水间，钟山只隔数重山。",
@@ -579,6 +626,7 @@
     "title": "游园不值",
     "author": "叶绍翁",
     "dynasty": "宋",
+    "category": "宋词",
     "grade": 6,
     "paragraphs": [
       "应怜屐齿印苍苔，小扣柴扉久不开。",
@@ -591,6 +639,7 @@
     "title": "石灰吟",
     "author": "于谦",
     "dynasty": "明",
+    "category": "唐诗",
     "grade": 6,
     "paragraphs": [
       "千锤万凿出深山，烈火焚烧若等闲。",
@@ -603,6 +652,7 @@
     "title": "竹石",
     "author": "郑燮",
     "dynasty": "清",
+    "category": "唐诗",
     "grade": 6,
     "paragraphs": [
       "咬定青山不放松，立根原在破岩中。",
@@ -615,6 +665,7 @@
     "title": "宿建德江",
     "author": "孟浩然",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 6,
     "paragraphs": [
       "移舟泊烟渚，日暮客愁新。",
@@ -627,6 +678,7 @@
     "title": "六月二十七日望湖楼醉书",
     "author": "苏轼",
     "dynasty": "宋",
+    "category": "宋词",
     "grade": 6,
     "paragraphs": [
       "黑云翻墨未遮山，白雨跳珠乱入船。",
@@ -639,6 +691,7 @@
     "title": "过故人庄",
     "author": "孟浩然",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 6,
     "paragraphs": [
       "故人具鸡黍，邀我至田家。",
@@ -653,6 +706,7 @@
     "title": "春日",
     "author": "朱熹",
     "dynasty": "宋",
+    "category": "宋词",
     "grade": 6,
     "paragraphs": [
       "胜日寻芳泗水滨，无边光景一时新。",
@@ -665,6 +719,7 @@
     "title": "清平乐·村居",
     "author": "辛弃疾",
     "dynasty": "宋",
+    "category": "宋词",
     "grade": 6,
     "paragraphs": [
       "茅檐低小，溪上青青草。",
@@ -679,6 +734,7 @@
     "title": "西江月·夜行黄沙道中",
     "author": "辛弃疾",
     "dynasty": "宋",
+    "category": "宋词",
     "grade": 6,
     "paragraphs": [
       "明月别枝惊鹊，清风半夜鸣蝉。",
@@ -693,6 +749,7 @@
     "title": "墨梅",
     "author": "王冕",
     "dynasty": "元",
+    "category": "唐诗",
     "grade": 6,
     "paragraphs": [
       "我家洗砚池头树，朵朵花开淡墨痕。",
@@ -705,6 +762,7 @@
     "title": "赋得古原草送别",
     "author": "白居易",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 6,
     "paragraphs": [
       "离离原上草，一岁一枯荣。",
@@ -719,6 +777,7 @@
     "title": "小池",
     "author": "杨万里",
     "dynasty": "宋",
+    "category": "宋词",
     "grade": 6,
     "paragraphs": [
       "泉眼无声惜细流，树阴照水爱晴柔。",
@@ -731,6 +790,7 @@
     "title": "晓出净慈寺送林子方",
     "author": "杨万里",
     "dynasty": "宋",
+    "category": "宋词",
     "grade": 6,
     "paragraphs": [
       "毕竟西湖六月中，风光不与四时同。",
@@ -743,6 +803,7 @@
     "title": "静夜思",
     "author": "李白",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 6,
     "paragraphs": [
       "床前明月光，疑是地上霜。",
@@ -755,6 +816,7 @@
     "title": "送元二使安西",
     "author": "王维",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 6,
     "paragraphs": [
       "渭城朝雨浥轻尘，客舍青青柳色新。",
@@ -767,6 +829,7 @@
     "title": "九月九日忆山东兄弟",
     "author": "王维",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 6,
     "paragraphs": [
       "独在异乡为异客，每逢佳节倍思亲。",
@@ -779,6 +842,7 @@
     "title": "清明",
     "author": "杜牧",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 6,
     "paragraphs": [
       "清明时节雨纷纷，路上行人欲断魂。",
@@ -791,6 +855,7 @@
     "title": "山行",
     "author": "杜牧",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 6,
     "paragraphs": [
       "远上寒山石径斜，白云生处有人家。",
@@ -803,6 +868,7 @@
     "title": "惠崇春江晚景",
     "author": "苏轼",
     "dynasty": "宋",
+    "category": "宋词",
     "grade": 6,
     "paragraphs": [
       "竹外桃花三两枝，春江水暖鸭先知。",
@@ -815,6 +881,7 @@
     "title": "悯农（其一）",
     "author": "李绅",
     "dynasty": "唐",
+    "category": "唐诗",
     "grade": 6,
     "paragraphs": [
       "春种一粒粟，秋收万颗子。",

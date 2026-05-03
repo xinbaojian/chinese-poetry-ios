@@ -26,7 +26,7 @@ struct PoemTests {
     func poemProperties() {
         let poem = Poem(
             id: "test", title: "测试", author: "作者",
-            dynasty: "唐", grade: 3,
+            dynasty: "唐", category: "唐诗", grade: 3,
             paragraphs: ["第一句", "第二句"],
             translation: "释义"
         )

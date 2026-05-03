@@ -29,7 +29,7 @@ struct HomeView: View {
                             .font(.title2.bold())
                         HStack(spacing: 16) {
                             StatCard(title: "待复习", value: "\(dueReviewCount)", color: .orange)
-                            StatCard(title: "已学完", value: "\(learnedCount)", color: .green)
+                            StatCard(title: "学习中", value: "\(learnedCount)", color: .green)
                             StatCard(title: "总共", value: "\(totalPoems)", color: .blue)
                         }
                     }

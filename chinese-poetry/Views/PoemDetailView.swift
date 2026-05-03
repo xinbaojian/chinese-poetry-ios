@@ -90,7 +90,7 @@ struct PoemDetailView: View {
     NavigationStack {
         PoemDetailView(poem: Poem(
             id: "p001", title: "静夜思", author: "李白",
-            dynasty: "唐", grade: 1,
+            dynasty: "唐", category: "唐诗", grade: 1,
             paragraphs: ["床前明月光，疑是地上霜。", "举头望明月，低头思故乡。"],
             translation: "明亮的月光洒在床前..."
         ))
