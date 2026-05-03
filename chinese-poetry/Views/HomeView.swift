@@ -11,14 +11,15 @@ import SwiftData
 struct HomeView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var records: [LearningRecord]
-    @State private var poems: [Poem] = []
+    private var totalPoemCount: Int {
+        (try? PoemLoader.loadPoems().count) ?? 0
+    }
 
     private var learnedCount: Int { records.count }
     private var dueReviewCount: Int {
         let engine = ReviewEngine()
         return records.filter { engine.isDueForReview(nextReviewDate: $0.nextReviewDate) }.count
     }
-    private var totalPoems: Int { poems.count }
 
     var body: some View {
         NavigationStack {
@@ -30,7 +31,7 @@ struct HomeView: View {
                         HStack(spacing: 16) {
                             StatCard(title: "待复习", value: "\(dueReviewCount)", color: .orange)
                             StatCard(title: "学习中", value: "\(learnedCount)", color: .green)
-                            StatCard(title: "总共", value: "\(totalPoems)", color: .blue)
+                            StatCard(title: "总共", value: "\(totalPoemCount)", color: .blue)
                         }
                     }
                     .padding()
@@ -63,9 +64,9 @@ struct HomeView: View {
                 .padding()
             }
             .navigationTitle("古诗词背诵")
-            .onAppear {
-                poems = (try? PoemLoader.loadPoems()) ?? []
-            }
+#if os(iOS)
+            .navigationBarTitleDisplayMode(.inline)
+#endif
         }
     }
 }
@@ -80,6 +81,8 @@ struct StatCard: View {
             Text(value)
                 .font(.title.bold())
                 .foregroundStyle(color)
+                .lineLimit(1)
+                .minimumScaleFactor(0.5)
             Text(title)
                 .font(.caption)
                 .foregroundStyle(.secondary)

@@ -16,13 +16,19 @@ struct LearnView: View {
     @State private var isHidden = false
     @State private var showMasterySheet = false
 
-    @AppStorage("dailyNewLimit") private var dailyNewLimit = 2
+    @AppStorage("dailyNewLimit") private var dailyNewLimit = 5
+    @AppStorage("learnMode") private var learnMode = "sequential"
+    @AppStorage("showPinyin") private var showPinyin = true
     @AppStorage("todayNewCount") private var todayNewCount = 0
     @AppStorage("lastNewDate") private var lastNewDate = ""
 
     private var unlearnedPoems: [Poem] {
         let learnedIds = Set(records.map(\.poemId))
-        return poems.filter { !learnedIds.contains($0.id) }
+        var result = poems.filter { !learnedIds.contains($0.id) }
+        if learnMode == "random" {
+            result.shuffle()
+        }
+        return result
     }
 
     private var canLearnMore: Bool {
@@ -83,8 +89,12 @@ struct LearnView: View {
 
             VStack(spacing: 16) {
                 ForEach(poem.paragraphs, id: \.self) { line in
-                    Text(isHidden ? String(repeating: "＿", count: line.count) : line)
-                        .font(.title2)
+                    if isHidden {
+                        Text(String(repeating: "＿", count: line.count))
+                            .font(.title2)
+                    } else {
+                        PinyinText(line, showPinyin: showPinyin, fontSize: 26)
+                    }
                 }
             }
             .frame(maxWidth: .infinity)

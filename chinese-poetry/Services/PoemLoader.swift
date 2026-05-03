@@ -1,7 +1,12 @@
 import Foundation
 
+struct PoemSummary: Codable {
+    let total: Int
+    let categories: [String: Int]
+}
+
 struct PoemLoader {
-    static func loadPoems() throws -> [Poem] {
+    nonisolated static func loadPoems() throws -> [Poem] {
         guard let url = Bundle.main.url(forResource: "poems", withExtension: "json") else {
             throw PoemError.fileNotFound
         }
@@ -9,22 +14,20 @@ struct PoemLoader {
         return try JSONDecoder().decode([Poem].self, from: data)
     }
 
-    static func loadCategoryPoems(category: String) async throws -> [Poem] {
-        let fileName: String
-        switch category {
-        case "唐诗": fileName = "poems_tang"
-        case "宋词": fileName = "poems_songci"
-        default: return try await Task.detached { try loadPoems() }.value
+    static func loadSummary() -> PoemSummary {
+        guard let url = Bundle.main.url(forResource: "poem_summary", withExtension: "json") else {
+            return PoemSummary(total: 0, categories: [:])
         }
-
-        guard let url = Bundle.main.url(forResource: fileName, withExtension: "json") else {
-            throw PoemError.fileNotFound
+        guard let data = try? Data(contentsOf: url),
+              let summary = try? JSONDecoder().decode(PoemSummary.self, from: data) else {
+            return PoemSummary(total: 0, categories: [:])
         }
+        return summary
+    }
 
-        return try await Task.detached {
-            let data = try Data(contentsOf: url)
-            return try JSONDecoder().decode([Poem].self, from: data)
-        }.value
+    nonisolated static func loadCategoryPoems(category: String) async throws -> [Poem] {
+        let poems = try await Task.detached { try loadPoems() }.value
+        return filter(poems: poems, byCategory: category)
     }
 
     static func filter(poems: [Poem], byGrade grade: Int) -> [Poem] {

@@ -11,7 +11,9 @@ import SwiftData
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var records: [LearningRecord]
-    @AppStorage("dailyNewLimit") private var dailyNewLimit = 2
+    @AppStorage("dailyNewLimit") private var dailyNewLimit = 5
+    @AppStorage("learnMode") private var learnMode = "sequential"
+    @AppStorage("showPinyin") private var showPinyin = true
     @AppStorage("reminderEnabled") private var reminderEnabled = false
     @AppStorage("reminderHour") private var reminderHour = 9
     @AppStorage("reminderMinute") private var reminderMinute = 0
@@ -30,7 +32,15 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section("学习设置") {
-                    Stepper("每日新学上限：\(dailyNewLimit) 首", value: $dailyNewLimit, in: 1...3)
+                    Stepper("每日新学上限：\(dailyNewLimit) 首", value: $dailyNewLimit, in: 1...999)
+
+                    Picker("学习模式", selection: $learnMode) {
+                        Text("顺序学习").tag("sequential")
+                        Text("随机抽取").tag("random")
+                    }
+                    .pickerStyle(.segmented)
+
+                    Toggle("显示拼音", isOn: $showPinyin)
                 }
 
                 Section("复习提醒") {

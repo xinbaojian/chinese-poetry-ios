@@ -13,6 +13,7 @@ struct PoemDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var records: [LearningRecord]
     @State private var showTranslation = false
+    @AppStorage("showPinyin") private var showPinyin = true
 
     private var isLearned: Bool {
         records.contains { $0.poemId == poem.id }
@@ -21,18 +22,18 @@ struct PoemDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(spacing: 4) {
                     Text(poem.title)
                         .font(.title.bold())
                     Text("\(poem.dynasty) · \(poem.author)")
                         .font(.title3)
                         .foregroundStyle(.secondary)
                 }
+                .frame(maxWidth: .infinity)
 
                 VStack(alignment: .leading, spacing: 12) {
                     ForEach(poem.paragraphs, id: \.self) { line in
-                        Text(line)
-                            .font(.title2)
+                        PinyinText(line, showPinyin: showPinyin, fontSize: 26)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .center)
@@ -76,10 +77,19 @@ struct PoemDetailView: View {
             }
             .padding()
         }
-        .navigationTitle(poem.title)
+        .navigationTitle("诗词详情")
 #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
 #endif
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    showPinyin.toggle()
+                } label: {
+                    Image(systemName: showPinyin ? "textformat.size.smaller" : "textformat.size.larger")
+                }
+            }
+        }
     }
 
     private func addToLearning() {
@@ -101,7 +111,7 @@ struct PoemDetailView: View {
 #Preview {
     NavigationStack {
         PoemDetailView(poem: Poem(
-            id: "p001", title: "静夜思", author: "李白",
+            id: "1", title: "静夜思", author: "李白",
             dynasty: "唐", category: "唐诗", grade: 1,
             paragraphs: ["床前明月光，疑是地上霜。", "举头望明月，低头思故乡。"],
             translation: "明亮的月光洒在床前..."
