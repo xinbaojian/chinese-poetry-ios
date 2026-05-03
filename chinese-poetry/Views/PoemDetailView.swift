@@ -61,11 +61,17 @@ struct PoemDetailView: View {
                             .clipShape(RoundedRectangle(cornerRadius: 12))
                     }
                 } else {
-                    Label("已加入学习计划", systemImage: "checkmark.circle.fill")
-                        .font(.headline)
-                        .foregroundStyle(.green)
-                        .frame(maxWidth: .infinity)
-                        .padding()
+                    Button(role: .destructive) {
+                        removeFromLearning()
+                    } label: {
+                        Label("移出学习计划", systemImage: "minus.circle.fill")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.red.opacity(0.1))
+                            .foregroundStyle(.red)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                    }
                 }
             }
             .padding()
@@ -83,6 +89,12 @@ struct PoemDetailView: View {
         )
         let record = LearningRecord(poemId: poem.id, nextReviewDate: nextDate)
         modelContext.insert(record)
+    }
+
+    private func removeFromLearning() {
+        for record in records where record.poemId == poem.id {
+            modelContext.delete(record)
+        }
     }
 }
 
