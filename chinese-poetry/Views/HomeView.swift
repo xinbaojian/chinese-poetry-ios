@@ -34,7 +34,7 @@ struct HomeView: View {
                         }
                     }
                     .padding()
-                    .background(Color(.systemBackground))
+                    .background(.regularMaterial)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .shadow(color: .black.opacity(0.05), radius: 4)
 

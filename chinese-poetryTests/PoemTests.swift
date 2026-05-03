@@ -16,8 +16,8 @@ struct PoemTests {
         let url = Bundle.main.url(forResource: "poems", withExtension: "json")!
         let data = try Data(contentsOf: url)
         let poems = try JSONDecoder().decode([Poem].self, from: data)
-        #expect(poems.count == 5)
-        #expect(poems[0].title == "静夜思")
+        #expect(poems.count >= 60)
+        #expect(poems[0].title == "咏鹅")
         #expect(poems[0].grade == 1)
         #expect(poems[0].translation != nil)
     }

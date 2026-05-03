@@ -71,7 +71,9 @@ struct PoemDetailView: View {
             .padding()
         }
         .navigationTitle(poem.title)
+#if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
+#endif
     }
 
     private func addToLearning() {

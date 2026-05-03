@@ -186,9 +186,13 @@ struct MasteryPicker: View {
             }
             .padding()
             .navigationTitle("掌握程度")
+#if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+#endif
         }
+#if os(iOS)
         .presentationDetents([.medium])
+#endif
     }
 }
 

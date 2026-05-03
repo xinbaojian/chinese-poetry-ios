@@ -79,7 +79,7 @@ struct GradePill: View {
                 .font(.subheadline.bold())
                 .padding(.horizontal, 14)
                 .padding(.vertical, 6)
-                .background(isSelected ? Color.blue : Color(.systemGray5))
+                .background(isSelected ? Color.blue : Color.gray.opacity(0.2))
                 .foregroundStyle(isSelected ? .white : .primary)
                 .clipShape(Capsule())
         }
