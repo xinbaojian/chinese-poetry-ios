@@ -19,6 +19,8 @@ struct ContentView: View {
                 .tabItem { Label("学习", systemImage: "pencil.and.outline") }
             ReviewView()
                 .tabItem { Label("复习", systemImage: "arrow.clockwise") }
+            QuizView()
+                .tabItem { Label("测验", systemImage: "questionmark.circle") }
             SettingsView()
                 .tabItem { Label("设置", systemImage: "gearshape.fill") }
         }
