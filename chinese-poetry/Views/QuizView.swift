@@ -24,8 +24,7 @@ struct QuizView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            Group {
+        Group {
                 if !quizStarted {
                     startScreen
                 } else if quizFinished {
@@ -38,7 +37,6 @@ struct QuizView: View {
             .onAppear {
                 poems = (try? PoemLoader.loadPoems()) ?? []
             }
-        }
     }
 
     // MARK: - 开始页
@@ -119,7 +117,7 @@ struct QuizView: View {
                     }
 
                     VStack(spacing: 14) {
-                        ForEach(poem.paragraphs, id: \.self) { line in
+                        ForEach(poem.displayLines, id: \.self) { line in
                             Text(showContent ? line : String(repeating: "＿＿", count: max(1, min(line.count, 6))))
                                 .font(.title2)
                                 .foregroundStyle(showContent ? AnyShapeStyle(.primary) : AnyShapeStyle(.tertiary))

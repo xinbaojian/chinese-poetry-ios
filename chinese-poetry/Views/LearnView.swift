@@ -42,8 +42,7 @@ struct LearnView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            Group {
+        Group {
                 if unlearnedPoems.isEmpty {
                     VStack(spacing: 12) {
                         Image(systemName: "checkmark.circle")
@@ -71,7 +70,6 @@ struct LearnView: View {
                 poems = (try? PoemLoader.loadPoems()) ?? []
                 currentPoemIndex = 0
             }
-        }
     }
 
     private var learnContent: some View {
@@ -88,7 +86,7 @@ struct LearnView: View {
             }
 
             VStack(spacing: 16) {
-                ForEach(poem.paragraphs, id: \.self) { line in
+                ForEach(poem.displayLines, id: \.self) { line in
                     if isHidden {
                         Text(String(repeating: "＿", count: line.count))
                             .font(.title2)

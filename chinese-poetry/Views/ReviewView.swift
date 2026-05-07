@@ -22,8 +22,7 @@ struct ReviewView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
+        VStack(spacing: 0) {
                 Picker("", selection: $selectedTab) {
                     Text("待复习").tag(0)
                     Text("已学习").tag(1)
@@ -41,7 +40,6 @@ struct ReviewView: View {
             .onAppear {
                 poems = (try? PoemLoader.loadPoems()) ?? []
             }
-        }
     }
 
     // MARK: - 待复习 Tab
@@ -74,7 +72,7 @@ struct ReviewView: View {
                 }
 
                 VStack(spacing: 16) {
-                    ForEach(poem.paragraphs, id: \.self) { line in
+                    ForEach(poem.displayLines, id: \.self) { line in
                         Text(isHidden ? String(repeating: "＿", count: line.count) : line)
                             .font(.title2)
                     }
@@ -210,6 +208,9 @@ struct ReviewView: View {
     }
 
     private func nextReviewText(_ date: Date) -> String {
+        if date <= Date() {
+            return "需复习"
+        }
         let formatter = DateFormatter()
         formatter.dateFormat = "MM/dd"
         return formatter.string(from: date)

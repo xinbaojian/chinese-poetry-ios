@@ -31,8 +31,7 @@ struct PoemLibraryView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
+        VStack(spacing: 0) {
                 ScrollView(.horizontal, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: 6) {
                         HStack(spacing: 8) {
@@ -133,7 +132,6 @@ struct PoemLibraryView: View {
                     poems = (try? PoemLoader.loadPoems()) ?? []
                 }
             }
-        }
     }
 
     private func selectPEP() {

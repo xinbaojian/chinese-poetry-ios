@@ -39,26 +39,42 @@ struct HomeView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .shadow(color: .black.opacity(0.05), radius: 4)
 
-                    NavigationLink(destination: LearnView()) {
-                        Label("开始今日学习", systemImage: "pencil.and.outline")
-                            .font(.headline)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.green.opacity(0.15))
-                            .foregroundStyle(.green)
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                    }
+                    LazyVGrid(
+                        columns: [GridItem(.flexible(), spacing: 16), GridItem(.flexible())],
+                        spacing: 16
+                    ) {
+                        ActionButton(
+                            title: "开始学习",
+                            icon: "pencil.and.outline",
+                            color: .green,
+                            destination: AnyView(LearnView())
+                        )
 
-                    if dueReviewCount > 0 {
-                        NavigationLink(destination: ReviewView()) {
-                            Label("去复习 (\(dueReviewCount)首)", systemImage: "arrow.clockwise")
-                                .font(.headline)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.orange.opacity(0.15))
-                                .foregroundStyle(.orange)
-                                .clipShape(RoundedRectangle(cornerRadius: 12))
-                        }
+                        ActionButton(
+                            title: "去复习",
+                            icon: "arrow.clockwise",
+                            color: .orange,
+                            badgeCount: dueReviewCount > 0 ? dueReviewCount : nil,
+                            destination: dueReviewCount > 0
+                                ? AnyView(ReviewView())
+                                : AnyView(EmptyActionView(message: "暂无待复习诗词", icon: "checkmark.circle"))
+                        )
+
+                        ActionButton(
+                            title: "诗词库",
+                            icon: "book.fill",
+                            color: .blue,
+                            destination: AnyView(PoemLibraryView())
+                        )
+
+                        ActionButton(
+                            title: "去测验",
+                            icon: "questionmark.circle",
+                            color: .purple,
+                            destination: learnedCount > 0
+                                ? AnyView(QuizView())
+                                : AnyView(EmptyActionView(message: "暂无已学诗词，请先学习", icon: "book"))
+                        )
                     }
                 }
                 .padding()
@@ -68,6 +84,73 @@ struct HomeView: View {
             .navigationBarTitleDisplayMode(.inline)
 #endif
         }
+    }
+}
+
+struct ActionButton: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let badgeCount: Int?
+    let destination: AnyView
+
+    init(title: String, icon: String, color: Color, badgeCount: Int? = nil, destination: AnyView) {
+        self.title = title
+        self.icon = icon
+        self.color = color
+        self.badgeCount = badgeCount
+        self.destination = destination
+    }
+
+    private var badgeText: String? {
+        guard let count = badgeCount, count > 0 else { return nil }
+        return count > 99 ? "99+" : "\(count)"
+    }
+
+    var body: some View {
+        NavigationLink(destination: destination) {
+            VStack(spacing: 8) {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundStyle(color)
+                Text(title)
+                    .font(.headline)
+                    .foregroundStyle(color)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(color.opacity(0.1))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
+            .overlay(alignment: .topTrailing) {
+                if let text = badgeText {
+                    Text(text)
+                        .font(.caption2.bold())
+                        .foregroundStyle(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 3)
+                        .background(color, in: Capsule())
+                        .padding(8)
+                }
+            }
+        }
+    }
+}
+
+struct EmptyActionView: View {
+    let message: String
+    let icon: String
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: icon)
+                .font(.system(size: 60))
+                .foregroundStyle(.secondary)
+            Text(message)
+                .font(.headline)
+                .foregroundStyle(.secondary)
+        }
+        .padding()
+        .navigationTitle("提示")
     }
 }
 

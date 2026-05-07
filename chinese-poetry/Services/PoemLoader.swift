@@ -30,15 +30,15 @@ struct PoemLoader {
         return filter(poems: poems, byCategory: category)
     }
 
-    static func filter(poems: [Poem], byGrade grade: Int) -> [Poem] {
+    nonisolated static func filter(poems: [Poem], byGrade grade: Int) -> [Poem] {
         poems.filter { $0.grade == grade }
     }
 
-    static func filter(poems: [Poem], byCategory category: String) -> [Poem] {
+    nonisolated static func filter(poems: [Poem], byCategory category: String) -> [Poem] {
         poems.filter { $0.category == category }
     }
 
-    static func search(poems: [Poem], query: String) -> [Poem] {
+    nonisolated static func search(poems: [Poem], query: String) -> [Poem] {
         guard !query.isEmpty else { return poems }
         return poems.filter {
             $0.title.contains(query) ||
