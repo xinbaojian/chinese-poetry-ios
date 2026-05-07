@@ -7,8 +7,9 @@ struct ReviewView: View {
     @State private var poems: [Poem] = []
     @State private var currentIndex = 0
     @State private var isHidden = false
-    @State private var showMasterySheet = false
+    @State private var reviewingRecord: LearningRecord?
     @State private var selectedTab = 0
+    @State private var reviewedInSession = 0
 
     private let engine = ReviewEngine()
 
@@ -40,16 +41,21 @@ struct ReviewView: View {
             .onAppear {
                 poems = (try? PoemLoader.loadPoems()) ?? []
             }
+            .onChange(of: dueRecords.count) {
+                if currentIndex >= dueRecords.count {
+                    currentIndex = max(0, dueRecords.count - 1)
+                }
+            }
     }
 
     // MARK: - 待复习 Tab
 
     private var reviewTab: some View {
         Group {
-            if dueRecords.isEmpty {
+            if dueRecords.isEmpty && reviewedInSession > 0 {
+                emptyState(message: "今日复习全部完成！", subtitle: "完成了\(reviewedInSession)首", icon: "checkmark.circle")
+            } else if dueRecords.isEmpty {
                 emptyState(message: "今天没有待复习的诗词", subtitle: "继续加油！", icon: "party.popper")
-            } else if currentIndex >= dueRecords.count {
-                emptyState(message: "今日复习全部完成！", subtitle: nil, icon: "checkmark.circle")
             } else {
                 reviewContent
             }
@@ -57,37 +63,17 @@ struct ReviewView: View {
     }
 
     private var reviewContent: some View {
-        let record = dueRecords[currentIndex]
-        let poem = poemMap[record.poemId]
-        return VStack(spacing: 24) {
+        VStack(spacing: 16) {
             Text("第 \(currentIndex + 1) / \(dueRecords.count) 首")
                 .foregroundStyle(.secondary)
 
-            if let poem {
-                VStack(spacing: 4) {
-                    Text(poem.title)
-                        .font(.title.bold())
-                    Text("\(poem.dynasty) · \(poem.author)")
-                        .foregroundStyle(.secondary)
-                }
-
-                VStack(spacing: 16) {
-                    ForEach(poem.displayLines, id: \.self) { line in
-                        Text(isHidden ? String(repeating: "＿", count: line.count) : line)
-                            .font(.title2)
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 24)
-
-                if let translation = poem.translation {
-                    DisclosureGroup("查看释义") {
-                        Text(translation)
-                            .foregroundStyle(.secondary)
-                    }
-                    .font(.subheadline)
+            TabView(selection: $currentIndex) {
+                ForEach(Array(dueRecords.enumerated()), id: \.element.poemId) { index, record in
+                    poemReviewPage(record: record)
+                        .tag(index)
                 }
             }
+            .tabViewStyle(.page(indexDisplayMode: .never))
 
             HStack(spacing: 16) {
                 Button(isHidden ? "显示原文" : "遮挡自测") {
@@ -100,7 +86,9 @@ struct ReviewView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
                 Button("完成复习") {
-                    showMasterySheet = true
+                    if currentIndex < dueRecords.count {
+                        reviewingRecord = dueRecords[currentIndex]
+                    }
                 }
                 .font(.headline)
                 .padding()
@@ -108,18 +96,50 @@ struct ReviewView: View {
                 .foregroundStyle(.white)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
             }
-
-            Spacer()
         }
         .padding()
-        .sheet(isPresented: $showMasterySheet) {
+        .sheet(item: $reviewingRecord) { record in
             if let poem = poemMap[record.poemId] {
                 MasteryPicker(poem: poem) { level in
                     updateRecord(record, level: level)
-                    showMasterySheet = false
-                    currentIndex += 1
+                    reviewingRecord = nil
                     isHidden = false
+                    reviewedInSession += 1
                 }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func poemReviewPage(record: LearningRecord) -> some View {
+        if let poem = poemMap[record.poemId] {
+            ScrollView {
+                VStack(spacing: 16) {
+                    VStack(spacing: 4) {
+                        Text(poem.title)
+                            .font(.title.bold())
+                        Text("\(poem.dynasty) · \(poem.author)")
+                            .foregroundStyle(.secondary)
+                    }
+
+                    VStack(spacing: 16) {
+                        ForEach(Array(poem.displayLines.enumerated()), id: \.offset) { _, line in
+                            Text(isHidden ? String(repeating: "＿", count: line.count) : line)
+                                .font(.title2)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 24)
+
+                    if let translation = poem.translation {
+                        DisclosureGroup("查看释义") {
+                            Text(translation)
+                                .foregroundStyle(.secondary)
+                        }
+                        .font(.subheadline)
+                    }
+                }
+                .padding(.horizontal)
             }
         }
     }

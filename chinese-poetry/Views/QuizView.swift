@@ -117,7 +117,7 @@ struct QuizView: View {
                     }
 
                     VStack(spacing: 14) {
-                        ForEach(poem.displayLines, id: \.self) { line in
+                        ForEach(Array(poem.displayLines.enumerated()), id: \.offset) { _, line in
                             Text(showContent ? line : String(repeating: "＿＿", count: max(1, min(line.count, 6))))
                                 .font(.title2)
                                 .foregroundStyle(showContent ? AnyShapeStyle(.primary) : AnyShapeStyle(.tertiary))

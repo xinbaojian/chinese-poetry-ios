@@ -86,7 +86,7 @@ struct LearnView: View {
             }
 
             VStack(spacing: 16) {
-                ForEach(poem.displayLines, id: \.self) { line in
+                ForEach(Array(poem.displayLines.enumerated()), id: \.offset) { _, line in
                     if isHidden {
                         Text(String(repeating: "＿", count: line.count))
                             .font(.title2)

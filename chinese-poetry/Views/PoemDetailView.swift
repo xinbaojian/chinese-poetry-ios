@@ -32,7 +32,7 @@ struct PoemDetailView: View {
                 .frame(maxWidth: .infinity)
 
                 VStack(alignment: .leading, spacing: 12) {
-                    ForEach(poem.displayLines, id: \.self) { line in
+                    ForEach(Array(poem.displayLines.enumerated()), id: \.offset) { _, line in
                         PinyinText(line, showPinyin: showPinyin, fontSize: 26)
                     }
                 }
