@@ -52,4 +52,19 @@ struct PinyinHelper {
         let result = mutable as String
         return result == char ? nil : result.lowercased()
     }
+
+    /// 获取单个汉字的拼音（应用多音字修正），非汉字返回 nil
+    static func pinyin(for char: String) -> String? {
+        if let corrected = corrections[char] {
+            return corrected
+        }
+        return toPinyin(char)
+    }
+
+    /// 去掉拼音声调标记，仅保留声母+韵母
+    static func stripTone(_ pinyin: String) -> String {
+        let mutable = NSMutableString(string: pinyin)
+        CFStringTransform(mutable, nil, kCFStringTransformStripDiacritics, false)
+        return (mutable as String).lowercased()
+    }
 }
