@@ -10,6 +10,7 @@ struct ReviewView: View {
     @State private var reviewingRecord: LearningRecord?
     @State private var selectedTab = 0
     @State private var reviewedInSession = 0
+    @State private var showingRecitation = false
 
     private let engine = ReviewEngine()
 
@@ -85,6 +86,15 @@ struct ReviewView: View {
                 .foregroundStyle(.blue)
                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
+                Button(action: { showingRecitation = true }) {
+                    Label("语音背诵", systemImage: "mic.fill")
+                }
+                .font(.headline)
+                .padding()
+                .background(Color.purple.opacity(0.15))
+                .foregroundStyle(.purple)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+
                 Button("完成复习") {
                     if currentIndex < dueRecords.count {
                         reviewingRecord = dueRecords[currentIndex]
@@ -98,6 +108,12 @@ struct ReviewView: View {
             }
         }
         .padding()
+        .sheet(isPresented: $showingRecitation) {
+            if currentIndex < dueRecords.count,
+               let poem = poemMap[dueRecords[currentIndex].poemId] {
+                RecitationView(poem: poem, onComplete: { showingRecitation = false })
+            }
+        }
         .sheet(item: $reviewingRecord) { record in
             if let poem = poemMap[record.poemId] {
                 MasteryPicker(poem: poem) { level in
