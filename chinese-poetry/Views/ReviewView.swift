@@ -6,7 +6,9 @@ struct ReviewView: View {
     @Query private var records: [LearningRecord]
     @State private var poems: [Poem] = []
     @State private var currentIndex = 0
+    @AppStorage("autoHideContent") private var autoHideContent = false
     @State private var isHidden = false
+    @State private var translationExpanded = true
     @State private var reviewingRecord: LearningRecord?
     @State private var selectedTab = 0
     @State private var reviewedInSession = 0
@@ -41,6 +43,7 @@ struct ReviewView: View {
             .navigationTitle("复习")
             .onAppear {
                 poems = (try? PoemLoader.loadPoems()) ?? []
+                isHidden = autoHideContent
             }
             .onChange(of: dueRecords.count) {
                 if currentIndex >= dueRecords.count {
@@ -76,35 +79,31 @@ struct ReviewView: View {
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
 
-            HStack(spacing: 16) {
-                Button(isHidden ? "显示原文" : "遮挡自测") {
-                    isHidden.toggle()
-                }
-                .font(.headline)
-                .padding()
-                .background(Color.blue.opacity(0.15))
-                .foregroundStyle(.blue)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+            VStack(spacing: 10) {
+                HStack(spacing: 10) {
+                    Button(action: { isHidden.toggle() }) {
+                        Label(isHidden ? "显示原文" : "遮挡自测",
+                              systemImage: isHidden ? "eye.fill" : "eye.slash.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.secondaryAction)
 
-                Button(action: { showingRecitation = true }) {
-                    Label("语音背诵", systemImage: "mic.fill")
+                    Button(action: { showingRecitation = true }) {
+                        Label("语音背诵", systemImage: "mic.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.secondaryAction)
                 }
-                .font(.headline)
-                .padding()
-                .background(Color.purple.opacity(0.15))
-                .foregroundStyle(.purple)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
 
-                Button("完成复习") {
+                Button {
                     if currentIndex < dueRecords.count {
                         reviewingRecord = dueRecords[currentIndex]
                     }
+                } label: {
+                    Label("完成复习", systemImage: "checkmark.circle.fill")
+                        .frame(maxWidth: .infinity)
                 }
-                .font(.headline)
-                .padding()
-                .background(Color.green)
-                .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
+                .buttonStyle(.primaryAction)
             }
         }
         .padding()
@@ -148,7 +147,7 @@ struct ReviewView: View {
                     .padding(.vertical, 24)
 
                     if let translation = poem.translation {
-                        DisclosureGroup("查看释义") {
+                        DisclosureGroup("查看释义", isExpanded: $translationExpanded) {
                             Text(translation)
                                 .foregroundStyle(.secondary)
                         }
@@ -260,6 +259,41 @@ struct ReviewView: View {
             reviewCount: record.reviewCount, level: level, from: Date()
         )
     }
+}
+// MARK: - Button Styles
+
+struct PrimaryActionButton: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.headline)
+            .padding(.vertical, 14)
+            .foregroundStyle(.white)
+            .background(Color.green)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)
+    }
+}
+
+struct SecondaryActionButton: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.subheadline.weight(.semibold))
+            .padding(.vertical, 12)
+            .foregroundStyle(.blue)
+            .background(Color.blue.opacity(0.1))
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+            .scaleEffect(configuration.isPressed ? 0.97 : 1.0)
+            .animation(.easeInOut(duration: 0.15), value: configuration.isPressed)
+    }
+}
+
+extension ButtonStyle where Self == PrimaryActionButton {
+    static var primaryAction: PrimaryActionButton { PrimaryActionButton() }
+}
+
+extension ButtonStyle where Self == SecondaryActionButton {
+    static var secondaryAction: SecondaryActionButton { SecondaryActionButton() }
 }
 
 #Preview {

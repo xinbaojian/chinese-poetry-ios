@@ -8,6 +8,7 @@ struct SettingsView: View {
     @AppStorage("dailyNewLimit") private var dailyNewLimit = 5
     @AppStorage("learnMode") private var learnMode = "sequential"
     @AppStorage("showPinyin") private var showPinyin = true
+    @AppStorage("autoHideContent") private var autoHideContent = false
     @AppStorage("reminderEnabled") private var reminderEnabled = false
     @AppStorage("reminderHour") private var reminderHour = 9
     @AppStorage("reminderMinute") private var reminderMinute = 0
@@ -44,6 +45,8 @@ struct SettingsView: View {
                         .pickerStyle(.segmented)
                         Divider()
                         Toggle("显示拼音", isOn: $showPinyin)
+                        Divider()
+                        Toggle("进入复习自动遮挡", isOn: $autoHideContent)
                     }
 
                     settingsSection("复习提醒") {
@@ -212,6 +215,7 @@ struct SettingsView: View {
             dailyNewLimit: dailyNewLimit,
             learnMode: learnMode,
             showPinyin: showPinyin,
+            autoHideContent: autoHideContent,
             reminderEnabled: reminderEnabled,
             reminderHour: reminderHour,
             reminderMinute: reminderMinute

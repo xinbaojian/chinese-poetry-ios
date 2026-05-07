@@ -123,10 +123,25 @@ struct RecitationView: View {
     // MARK: - Result
 
     private func resultView(_ result: RecitationChecker.Result) -> some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 24) {
             resultSummary(result)
 
-            characterGrid(result)
+            let grouped = groupByLines(result)
+            VStack(alignment: .center, spacing: 20) {
+                ForEach(Array(grouped.enumerated()), id: \.offset) { _, lineChars in
+                    if !lineChars.isEmpty {
+                        FlowLayout(spacing: 4) {
+                            ForEach(Array(lineChars.enumerated()), id: \.offset) { _, item in
+                                charCard(item)
+                            }
+                        }
+                    }
+                }
+            }
+            .padding(.vertical, 20)
+            .padding(.horizontal, 16)
+            .background(Color(.secondarySystemBackground))
+            .clipShape(RoundedRectangle(cornerRadius: 16))
 
             HStack(spacing: 16) {
                 Button(action: retry) {
@@ -163,14 +178,6 @@ struct RecitationView: View {
         }
     }
 
-    private func characterGrid(_ result: RecitationChecker.Result) -> some View {
-        FlowLayout(spacing: 6) {
-            ForEach(Array(result.alignedChars.enumerated()), id: \.offset) { _, item in
-                charCard(item)
-            }
-        }
-    }
-
     @ViewBuilder
     private func charCard(_ item: RecitationChecker.AlignedChar) -> some View {
         let color: Color = switch item.status {
@@ -201,8 +208,45 @@ struct RecitationView: View {
                 .foregroundStyle(color)
         }
         .frame(width: 36, height: 54)
-        .background(color.opacity(0.1))
+        .background(color.opacity(0.08))
         .clipShape(RoundedRectangle(cornerRadius: 6))
+        .overlay(RoundedRectangle(cornerRadius: 6).stroke(color.opacity(0.2), lineWidth: 0.5))
+    }
+
+    // MARK: - Line Grouping
+
+    private func groupByLines(_ result: RecitationChecker.Result) -> [[RecitationChecker.AlignedChar]] {
+        var lineEndIndices: [Int] = []
+        var count = 0
+        for line in poem.displayLines {
+            let lineChinese = line.unicodeScalars.filter {
+                ($0.value >= 0x4E00 && $0.value <= 0x9FFF) || ($0.value >= 0x3400 && $0.value <= 0x4DBF)
+            }.count
+            count += lineChinese
+            lineEndIndices.append(count)
+        }
+
+        func lineFor(idx: Int) -> Int {
+            for (lineIdx, end) in lineEndIndices.enumerated() {
+                if idx < end { return lineIdx }
+            }
+            return max(lineEndIndices.count - 1, 0)
+        }
+
+        var lines: [[RecitationChecker.AlignedChar]] = poem.displayLines.map { _ in [] }
+        var originalIdx = 0
+
+        for item in result.alignedChars {
+            if item.original != nil {
+                lines[lineFor(idx: originalIdx)].append(item)
+                originalIdx += 1
+            } else {
+                let target = originalIdx > 0 ? lineFor(idx: originalIdx - 1) : 0
+                lines[target].append(item)
+            }
+        }
+
+        return lines
     }
 
     // MARK: - Actions

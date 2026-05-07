@@ -14,6 +14,7 @@ struct BackupSettings: Codable {
     let dailyNewLimit: Int
     let learnMode: String
     let showPinyin: Bool
+    let autoHideContent: Bool
     let reminderEnabled: Bool
     let reminderHour: Int
     let reminderMinute: Int

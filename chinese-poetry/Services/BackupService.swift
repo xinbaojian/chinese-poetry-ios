@@ -96,6 +96,7 @@ struct BackupService {
         dailyNewLimit: Int,
         learnMode: String,
         showPinyin: Bool,
+        autoHideContent: Bool,
         reminderEnabled: Bool,
         reminderHour: Int,
         reminderMinute: Int
@@ -104,6 +105,7 @@ struct BackupService {
             dailyNewLimit: dailyNewLimit,
             learnMode: learnMode,
             showPinyin: showPinyin,
+            autoHideContent: autoHideContent,
             reminderEnabled: reminderEnabled,
             reminderHour: reminderHour,
             reminderMinute: reminderMinute
@@ -114,6 +116,7 @@ struct BackupService {
         UserDefaults.standard.set(settings.dailyNewLimit, forKey: "dailyNewLimit")
         UserDefaults.standard.set(settings.learnMode, forKey: "learnMode")
         UserDefaults.standard.set(settings.showPinyin, forKey: "showPinyin")
+        UserDefaults.standard.set(settings.autoHideContent, forKey: "autoHideContent")
         UserDefaults.standard.set(settings.reminderEnabled, forKey: "reminderEnabled")
         UserDefaults.standard.set(settings.reminderHour, forKey: "reminderHour")
         UserDefaults.standard.set(settings.reminderMinute, forKey: "reminderMinute")
