@@ -111,7 +111,7 @@ struct ReviewView: View {
         .sheet(isPresented: $showingRecitation) {
             if currentIndex < dueRecords.count,
                let poem = poemMap[dueRecords[currentIndex].poemId] {
-                RecitationView(poem: poem, onComplete: { showingRecitation = false })
+                RecitationView(poem: poem)
             }
         }
         .sheet(item: $reviewingRecord) { record in

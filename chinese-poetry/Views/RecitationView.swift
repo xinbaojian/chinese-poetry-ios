@@ -2,11 +2,11 @@ import SwiftUI
 
 struct RecitationView: View {
     let poem: Poem
-    let onComplete: () -> Void
 
     @State private var phase = Phase.ready
     @State private var recognizer = SpeechRecognizer()
     @State private var checkResult: RecitationChecker.Result?
+    @State private var errorMessage: String?
     @Environment(\.dismiss) private var dismiss
 
     private enum Phase {
@@ -57,7 +57,7 @@ struct RecitationView: View {
 
     private var readyView: some View {
         VStack(spacing: 24) {
-            Spacer()
+            Spacer(minLength: 0)
 
             Image(systemName: "mic.circle.fill")
                 .font(.system(size: 80))
@@ -66,6 +66,13 @@ struct RecitationView: View {
             Text("点击下方按钮开始背诵\n系统将自动识别你的语音")
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
+
+            if let errorMessage {
+                Text(errorMessage)
+                    .font(.subheadline)
+                    .foregroundStyle(.red)
+                    .padding(.horizontal)
+            }
 
             Button(action: startRecitation) {
                 Label("开始背诵", systemImage: "mic.fill")
@@ -77,8 +84,9 @@ struct RecitationView: View {
                     .clipShape(RoundedRectangle(cornerRadius: 12))
             }
 
-            Spacer()
+            Spacer(minLength: 0)
         }
+        .frame(minHeight: 300)
     }
 
     // MARK: - Recording
@@ -200,20 +208,29 @@ struct RecitationView: View {
     // MARK: - Actions
 
     private func startRecitation() {
+        errorMessage = nil
         Task {
             let authorized = await recognizer.requestAuthorization()
-            guard authorized else { return }
+            guard authorized else {
+                errorMessage = "需要麦克风和语音识别权限，请在系统设置中开启"
+                return
+            }
             do {
                 try recognizer.start(contextualStrings: poem.paragraphs)
                 phase = .recording
             } catch {
-                // Handle error silently - user can retry
+                errorMessage = "语音识别不可用，请检查设备是否支持"
             }
         }
     }
 
     private func stopRecitation() {
         recognizer.stop()
+        if recognizer.recognizedText.isEmpty {
+            errorMessage = "未检测到语音，请重试"
+            phase = .ready
+            return
+        }
         let result = RecitationChecker.check(
             original: poem.paragraphs.joined(),
             recognized: recognizer.recognizedText
@@ -226,6 +243,7 @@ struct RecitationView: View {
         recognizer.stop()
         recognizer = SpeechRecognizer()
         checkResult = nil
+        errorMessage = nil
         phase = .ready
     }
 }
