@@ -206,7 +206,7 @@ struct SettingsView: View {
         do {
             try modelContext.delete(model: LearningRecord.self)
         } catch {
-            // 静默处理
+            importError = "清空失败：\(error.localizedDescription)"
         }
     }
 

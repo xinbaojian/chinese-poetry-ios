@@ -10,12 +10,14 @@ enum BackupError: LocalizedError {
     case encodingFailed
     case decodingFailed
     case invalidFormat
+    case validationFailed(String)
 
     var errorDescription: String? {
         switch self {
         case .encodingFailed: "导出数据编码失败"
         case .decodingFailed: "备份文件解析失败"
         case .invalidFormat: "备份文件格式不正确"
+        case .validationFailed(let reason): "备份数据校验失败：\(reason)"
         }
     }
 }
@@ -63,6 +65,23 @@ struct BackupService {
 
         guard backup.version <= currentVersion else {
             throw BackupError.invalidFormat
+        }
+
+        guard backup.recordCount == backup.records.count else {
+            throw BackupError.validationFailed("记录数不一致")
+        }
+
+        for record in backup.records {
+            guard !record.poemId.isEmpty, record.poemId.count <= 100 else {
+                throw BackupError.validationFailed("无效的诗词ID")
+            }
+            guard record.reviewCount >= 0 else {
+                throw BackupError.validationFailed("无效的复习次数")
+            }
+            let now = Date()
+            guard record.learnedDate < now.addingTimeInterval(86400) else {
+                throw BackupError.validationFailed("无效的学习日期")
+            }
         }
 
         return backup
@@ -113,13 +132,17 @@ struct BackupService {
     }
 
     static func applySettings(_ settings: BackupSettings) {
-        UserDefaults.standard.set(settings.dailyNewLimit, forKey: "dailyNewLimit")
-        UserDefaults.standard.set(settings.learnMode, forKey: "learnMode")
+        UserDefaults.standard.set(clamp(settings.dailyNewLimit, in: 1...999), forKey: "dailyNewLimit")
+        UserDefaults.standard.set(["sequential", "random"].contains(settings.learnMode) ? settings.learnMode : "sequential", forKey: "learnMode")
         UserDefaults.standard.set(settings.showPinyin, forKey: "showPinyin")
         UserDefaults.standard.set(settings.autoHideContent, forKey: "autoHideContent")
         UserDefaults.standard.set(settings.reminderEnabled, forKey: "reminderEnabled")
-        UserDefaults.standard.set(settings.reminderHour, forKey: "reminderHour")
-        UserDefaults.standard.set(settings.reminderMinute, forKey: "reminderMinute")
+        UserDefaults.standard.set(clamp(settings.reminderHour, in: 0...23), forKey: "reminderHour")
+        UserDefaults.standard.set(clamp(settings.reminderMinute, in: 0...59), forKey: "reminderMinute")
+    }
+
+    private static func clamp(_ value: Int, in range: ClosedRange<Int>) -> Int {
+        min(max(value, range.lowerBound), range.upperBound)
     }
 
     static func exportFileName() -> String {

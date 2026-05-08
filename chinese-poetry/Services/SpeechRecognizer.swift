@@ -4,8 +4,9 @@ import SwiftUI
 
 @Observable
 final class SpeechRecognizer {
-    var recognizedText = ""
+    private(set) var recognizedText = ""
     var isRecording = false
+    var onError: ((String) -> Void)?
 
     private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "zh-CN"))
     private let audioEngine = AVAudioEngine()
@@ -54,12 +55,16 @@ final class SpeechRecognizer {
         audioEngine.prepare()
         try audioEngine.start()
 
-        recognitionTask = speechRecognizer.recognitionTask(with: request) { [weak self] result, _ in
+        recognitionTask = speechRecognizer.recognitionTask(with: request) { [weak self] result, error in
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 if let result {
                     self.recognizedText = result.bestTranscription.formattedString
                     self.lastSpeechTime = Date()
+                }
+                if let error {
+                    self.stop()
+                    self.onError?(error.localizedDescription)
                 }
             }
         }
