@@ -74,74 +74,87 @@ struct LearnView: View {
             }
     }
 
+    private var currentPoem: Poem {
+        unlearnedPoems[min(currentPoemIndex, unlearnedPoems.count - 1)]
+    }
+
     private var learnContent: some View {
-        let poem = unlearnedPoems[min(currentPoemIndex, unlearnedPoems.count - 1)]
-        return ScrollView {
-            VStack(spacing: 24) {
-                Text("第 \(currentPoemIndex + 1) / \(unlearnedPoems.count) 首")
-                    .foregroundStyle(.secondary)
+        VStack(spacing: 16) {
+            Text("第 \(currentPoemIndex + 1) / \(unlearnedPoems.count) 首")
+                .foregroundStyle(.secondary)
 
-                VStack(spacing: 4) {
-                    Text(poem.title)
-                        .font(.title.bold())
-                    Text("\(poem.dynasty) · \(poem.author)")
-                        .foregroundStyle(.secondary)
-                }
+            TabView(selection: $currentPoemIndex) {
+                ForEach(Array(unlearnedPoems.enumerated()), id: \.element.id) { index, poem in
+                    ScrollView {
+                        VStack(spacing: 16) {
+                            VStack(spacing: 4) {
+                                Text(poem.title)
+                                    .font(.title.bold())
+                                Text("\(poem.dynasty) · \(poem.author)")
+                                    .foregroundStyle(.secondary)
+                            }
 
-                VStack(spacing: 16) {
-                    ForEach(Array(poem.displayLines.enumerated()), id: \.offset) { _, line in
-                        if isHidden {
-                            Text(String(repeating: "＿", count: line.count))
-                                .font(.title2)
-                        } else {
-                            PinyinText(line, showPinyin: showPinyin, fontSize: 26)
-                        }
-                    }
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 24)
-
-                if let translation = poem.translation {
-                    DisclosureGroup("查看释义", isExpanded: $translationExpanded) {
-                        Text(translation)
-                            .foregroundStyle(.secondary)
-                    }
-                    .font(.subheadline)
-                }
-
-                VStack(spacing: 10) {
-                    HStack(spacing: 10) {
-                        Button(action: { isHidden.toggle() }) {
-                            Label(isHidden ? "显示原文" : "遮挡自测",
-                                  systemImage: isHidden ? "eye.fill" : "eye.slash.fill")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.secondaryAction)
-
-                        Button(action: { showingRecitation = true }) {
-                            Label("语音背诵", systemImage: "mic.fill")
-                                .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.secondaryAction)
-                    }
-
-                    Button {
-                        showMasterySheet = true
-                    } label: {
-                        Label("完成背诵", systemImage: "checkmark.circle.fill")
+                            VStack(spacing: 16) {
+                                ForEach(Array(poem.displayLines.enumerated()), id: \.offset) { _, line in
+                                    if isHidden {
+                                        Text(String(repeating: "＿", count: line.count))
+                                            .font(.title2)
+                                    } else {
+                                        PinyinText(line, showPinyin: showPinyin, fontSize: 26)
+                                    }
+                                }
+                            }
                             .frame(maxWidth: .infinity)
+                            .padding(.vertical, 24)
+
+                            if let translation = poem.translation {
+                                DisclosureGroup("查看释义", isExpanded: $translationExpanded) {
+                                    Text(translation)
+                                        .foregroundStyle(.secondary)
+                                }
+                                .font(.subheadline)
+                            }
+                        }
+                        .padding()
                     }
-                    .buttonStyle(.primaryAction)
+                    .tag(index)
                 }
             }
-            .padding()
+            .tabViewStyle(.page(indexDisplayMode: .never))
+            .onChange(of: currentPoemIndex) { isHidden = false }
+
+            VStack(spacing: 10) {
+                HStack(spacing: 10) {
+                    Button(action: { isHidden.toggle() }) {
+                        Label(isHidden ? "显示原文" : "遮挡自测",
+                              systemImage: isHidden ? "eye.fill" : "eye.slash.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.secondaryAction)
+
+                    Button(action: { showingRecitation = true }) {
+                        Label("语音背诵", systemImage: "mic.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.secondaryAction)
+                }
+
+                Button {
+                    showMasterySheet = true
+                } label: {
+                    Label("完成背诵", systemImage: "checkmark.circle.fill")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.primaryAction)
+            }
         }
+        .padding()
         .sheet(isPresented: $showingRecitation) {
-            RecitationView(poem: poem)
+            RecitationView(poem: currentPoem)
         }
         .sheet(isPresented: $showMasterySheet) {
-            MasteryPicker(poem: poem, onSelect: { level in
-                addRecord(poem: poem, level: level)
+            MasteryPicker(poem: currentPoem, onSelect: { level in
+                addRecord(poem: currentPoem, level: level)
                 showMasterySheet = false
                 if lastNewDate != todayDateString {
                     lastNewDate = todayDateString
