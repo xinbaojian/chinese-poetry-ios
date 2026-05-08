@@ -14,6 +14,8 @@ struct LearnView: View {
     @State private var poems: [Poem] = []
     @State private var currentPoemIndex = 0
     @State private var isHidden = false
+    @State private var translationExpanded = true
+    @State private var showingRecitation = false
     @State private var showMasterySheet = false
 
     @AppStorage("dailyNewLimit") private var dailyNewLimit = 5
@@ -74,53 +76,69 @@ struct LearnView: View {
 
     private var learnContent: some View {
         let poem = unlearnedPoems[min(currentPoemIndex, unlearnedPoems.count - 1)]
-        return VStack(spacing: 24) {
-            Text("第 \(currentPoemIndex + 1) / \(unlearnedPoems.count) 首")
-                .foregroundStyle(.secondary)
-
-            VStack(spacing: 4) {
-                Text(poem.title)
-                    .font(.title.bold())
-                Text("\(poem.dynasty) · \(poem.author)")
+        return ScrollView {
+            VStack(spacing: 24) {
+                Text("第 \(currentPoemIndex + 1) / \(unlearnedPoems.count) 首")
                     .foregroundStyle(.secondary)
-            }
 
-            VStack(spacing: 16) {
-                ForEach(Array(poem.displayLines.enumerated()), id: \.offset) { _, line in
-                    if isHidden {
-                        Text(String(repeating: "＿", count: line.count))
-                            .font(.title2)
-                    } else {
-                        PinyinText(line, showPinyin: showPinyin, fontSize: 26)
+                VStack(spacing: 4) {
+                    Text(poem.title)
+                        .font(.title.bold())
+                    Text("\(poem.dynasty) · \(poem.author)")
+                        .foregroundStyle(.secondary)
+                }
+
+                VStack(spacing: 16) {
+                    ForEach(Array(poem.displayLines.enumerated()), id: \.offset) { _, line in
+                        if isHidden {
+                            Text(String(repeating: "＿", count: line.count))
+                                .font(.title2)
+                        } else {
+                            PinyinText(line, showPinyin: showPinyin, fontSize: 26)
+                        }
                     }
                 }
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 24)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 24)
 
-            HStack(spacing: 16) {
-                Button(isHidden ? "显示原文" : "遮挡自测") {
-                    isHidden.toggle()
+                if let translation = poem.translation {
+                    DisclosureGroup("查看释义", isExpanded: $translationExpanded) {
+                        Text(translation)
+                            .foregroundStyle(.secondary)
+                    }
+                    .font(.subheadline)
                 }
-                .font(.headline)
-                .padding()
-                .background(Color.blue.opacity(0.15))
-                .foregroundStyle(.blue)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
 
-                Button("完成背诵") {
-                    showMasterySheet = true
+                VStack(spacing: 10) {
+                    HStack(spacing: 10) {
+                        Button(action: { isHidden.toggle() }) {
+                            Label(isHidden ? "显示原文" : "遮挡自测",
+                                  systemImage: isHidden ? "eye.fill" : "eye.slash.fill")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.secondaryAction)
+
+                        Button(action: { showingRecitation = true }) {
+                            Label("语音背诵", systemImage: "mic.fill")
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(.secondaryAction)
+                    }
+
+                    Button {
+                        showMasterySheet = true
+                    } label: {
+                        Label("完成背诵", systemImage: "checkmark.circle.fill")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.primaryAction)
                 }
-                .font(.headline)
-                .padding()
-                .background(Color.green)
-                .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
-
-            Spacer()
+            .padding()
         }
-        .padding()
+        .sheet(isPresented: $showingRecitation) {
+            RecitationView(poem: poem)
+        }
         .sheet(isPresented: $showMasterySheet) {
             MasteryPicker(poem: poem, onSelect: { level in
                 addRecord(poem: poem, level: level)
