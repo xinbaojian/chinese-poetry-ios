@@ -23,9 +23,31 @@ struct RecitationChecker {
         let extraCount: Int
     }
 
-    static func check(original: String, recognized: String) -> Result {
+    static func check(original: String, recognized: String, headerToSkip: String = "") -> Result {
         let origChars = filterChinese(original)
-        let recChars = filterChinese(recognized)
+        var recChars = filterChinese(recognized)
+
+        // 剥离孩子背诵时先念的标题/朝代/作者（按拼音顺序匹配，遇到不匹配则停止）
+        if !headerToSkip.isEmpty {
+            let headerChars = filterChinese(headerToSkip)
+            let headerPinyin = headerChars.map { PinyinHelper.stripTone(PinyinHelper.pinyin(for: $0) ?? $0) }
+            let recPinyin = recChars.map { PinyinHelper.stripTone(PinyinHelper.pinyin(for: $0) ?? $0) }
+
+            var headerIdx = 0
+            var recIdx = 0
+            while headerIdx < headerPinyin.count && recIdx < recPinyin.count {
+                if headerPinyin[headerIdx] == recPinyin[recIdx] {
+                    headerIdx += 1
+                    recIdx += 1
+                } else {
+                    break
+                }
+            }
+            // 只有 header 全部匹配时才剥离，避免标题与正文开头拼音重叠导致误剥
+            if headerIdx == headerPinyin.count && recIdx > 0 {
+                recChars = Array(recChars.dropFirst(recIdx))
+            }
+        }
 
         let origPinyin = origChars.map { PinyinHelper.stripTone(PinyinHelper.pinyin(for: $0) ?? $0) }
         let recPinyin = recChars.map { PinyinHelper.stripTone(PinyinHelper.pinyin(for: $0) ?? $0) }

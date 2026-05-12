@@ -55,9 +55,7 @@ struct HomeView: View {
                             icon: "arrow.clockwise",
                             color: .orange,
                             badgeCount: dueReviewCount > 0 ? dueReviewCount : nil,
-                            destination: dueReviewCount > 0
-                                ? AnyView(ReviewView())
-                                : AnyView(EmptyActionView(message: "暂无待复习诗词", icon: "checkmark.circle"))
+                            destination: AnyView(ReviewView())
                         )
 
                         ActionButton(

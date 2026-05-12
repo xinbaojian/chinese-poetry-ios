@@ -98,4 +98,38 @@ struct RecitationCheckerTests {
         #expect(result.missingCount >= 1)
         #expect(result.extraCount >= 1)
     }
+
+    @Test("标题朝代作者被剥离，不影响内容匹配")
+    func headerStrippedFromBeginning() async {
+        let result = RecitationChecker.check(
+            original: "床前明月光疑是地上霜",
+            recognized: "静夜思唐李白床前明月光疑是地上霜",
+            headerToSkip: "静夜思唐李白"
+        )
+        #expect(result.accuracy == 1.0)
+        #expect(result.correctCount == 10)
+        #expect(result.extraCount == 0)
+    }
+
+    @Test("标题朝代作者念错时不剥离")
+    func headerMismatchNoStripping() async {
+        let result = RecitationChecker.check(
+            original: "床前明月光",
+            recognized: "静夜思唐代白床前明月光",
+            headerToSkip: "静夜思唐李白"
+        )
+        // "白"与"李"拼音不同，header 未全部匹配，不剥离
+        #expect(result.extraCount == 6) // "静夜思唐代白" 全部作为多字
+        #expect(result.correctCount == 5)
+    }
+
+    @Test("无header时不影响原有逻辑")
+    func noHeaderBackwardCompatible() async {
+        let result = RecitationChecker.check(
+            original: "床前明月光",
+            recognized: "床前明月光"
+        )
+        #expect(result.accuracy == 1.0)
+        #expect(result.correctCount == 5)
+    }
 }

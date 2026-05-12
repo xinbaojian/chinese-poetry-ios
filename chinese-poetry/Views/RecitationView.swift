@@ -277,7 +277,8 @@ struct RecitationView: View {
         }
         let result = RecitationChecker.check(
             original: poem.paragraphs.joined(),
-            recognized: recognizer.recognizedText
+            recognized: recognizer.recognizedText,
+            headerToSkip: "\(poem.title)\(poem.dynasty)\(poem.author)"
         )
         checkResult = result
         phase = .result
