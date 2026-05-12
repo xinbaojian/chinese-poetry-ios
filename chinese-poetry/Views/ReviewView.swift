@@ -50,6 +50,9 @@ struct ReviewView: View {
                     currentIndex = max(0, dueRecords.count - 1)
                 }
             }
+            .onChange(of: currentIndex) {
+                isHidden = autoHideContent
+            }
     }
 
     // MARK: - 待复习 Tab
@@ -118,7 +121,7 @@ struct ReviewView: View {
                 MasteryPicker(poem: poem) { level in
                     updateRecord(record, level: level)
                     reviewingRecord = nil
-                    isHidden = false
+                    isHidden = autoHideContent
                     reviewedInSession += 1
                 }
             }
