@@ -13,8 +13,37 @@ struct ReviewView: View {
     @State private var selectedTab = 0
     @State private var reviewedInSession = 0
     @State private var showingRecitation = false
+    @State private var learnedSortOrder: LearnedSortOrder = .nextReview
 
     private let engine = ReviewEngine()
+
+    enum LearnedSortOrder: String, CaseIterable {
+        case nextReview = "下次复习"
+        case learnedDate = "学习时间"
+        case mastery = "掌握程度"
+    }
+
+    private var sortedLearnedRecords: [LearningRecord] {
+        switch learnedSortOrder {
+        case .nextReview:
+            records.sorted { $0.nextReviewDate < $1.nextReviewDate }
+        case .learnedDate:
+            records.sorted { $0.learnedDate > $1.learnedDate }
+        case .mastery:
+            records.sorted {
+                let o1 = masteryOrder($0.masteryLevel), o2 = masteryOrder($1.masteryLevel)
+                return o1 == o2 ? $0.nextReviewDate < $1.nextReviewDate : o1 < o2
+            }
+        }
+    }
+
+    private func masteryOrder(_ level: MasteryLevel) -> Int {
+        switch level {
+        case .weak: 0
+        case .fair: 1
+        case .proficient: 2
+        }
+    }
 
     private var dueRecords: [LearningRecord] {
         records.filter { engine.isDueForReview(nextReviewDate: $0.nextReviewDate) }
@@ -167,35 +196,65 @@ struct ReviewView: View {
                 emptyState(message: "还没有加入学习计划的诗词", subtitle: "去诗词库挑选吧！", icon: "book")
             } else {
                 List {
-                    ForEach(records) { record in
-                        if let poem = poemMap[record.poemId] {
-                            NavigationLink(destination: PoemDetailView(poem: poem)) {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(poem.title)
-                                        .font(.headline)
-                                    Text("\(poem.dynasty) · \(poem.author)")
-                                        .font(.subheadline)
-                                        .foregroundStyle(.secondary)
-                                    HStack(spacing: 8) {
-                                        Label(masteryText(record.masteryLevel), systemImage: masteryIcon(record.masteryLevel))
-                                            .font(.caption)
-                                            .foregroundStyle(masteryColor(record.masteryLevel))
-                                        Text("复习\(record.reviewCount)次")
-                                            .font(.caption)
+                    Section {
+                        ForEach(sortedLearnedRecords) { record in
+                            if let poem = poemMap[record.poemId] {
+                                NavigationLink(destination: PoemDetailView(poem: poem)) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(poem.title)
+                                            .font(.headline)
+                                        Text("\(poem.dynasty) · \(poem.author)")
+                                            .font(.subheadline)
                                             .foregroundStyle(.secondary)
-                                        Text("下次 \(nextReviewText(record.nextReviewDate))")
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
+                                        HStack(spacing: 8) {
+                                            Label(masteryText(record.masteryLevel), systemImage: masteryIcon(record.masteryLevel))
+                                                .font(.caption)
+                                                .foregroundStyle(masteryColor(record.masteryLevel))
+                                            Text("复习\(record.reviewCount)次")
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                            Text("下次 \(nextReviewText(record.nextReviewDate))")
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                    .padding(.vertical, 2)
+                                }
+                                .swipeActions(edge: .trailing) {
+                                    Button(role: .destructive) {
+                                        modelContext.delete(record)
+                                    } label: {
+                                        Label("移出", systemImage: "minus.circle")
                                     }
                                 }
-                                .padding(.vertical, 2)
                             }
-                            .swipeActions(edge: .trailing) {
-                                Button(role: .destructive) {
-                                    modelContext.delete(record)
-                                } label: {
-                                    Label("移出", systemImage: "minus.circle")
+                        }
+                    } header: {
+                        HStack {
+                            Text("\(records.count)首")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            Menu {
+                                ForEach(LearnedSortOrder.allCases, id: \.self) { order in
+                                    Button {
+                                        learnedSortOrder = order
+                                    } label: {
+                                        HStack {
+                                            Text(order.rawValue)
+                                            if learnedSortOrder == order {
+                                                Image(systemName: "checkmark")
+                                            }
+                                        }
+                                    }
                                 }
+                            } label: {
+                                HStack(spacing: 2) {
+                                    Image(systemName: "arrow.up.arrow.down")
+                                    Text(learnedSortOrder.rawValue)
+                                }
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                             }
                         }
                     }
