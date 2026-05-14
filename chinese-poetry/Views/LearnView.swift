@@ -178,7 +178,7 @@ struct LearnView: View {
             nextReviewDate: nextDate, masteryLevel: level, updatedAt: Date()
         )
         modelContext.insert(record)
-        Task { try? await SyncService.syncRecords([record]) }
+        Task { await SyncManager.shared.sync(records: [record]) }
     }
 }
 

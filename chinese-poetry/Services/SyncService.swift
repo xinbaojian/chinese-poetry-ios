@@ -47,24 +47,28 @@ struct SyncResponse: Decodable {
 // MARK: - SyncService
 
 struct SyncService {
-    private static let isoFormatter: ISO8601DateFormatter = {
+    private static let beijingFormatter: ISO8601DateFormatter = {
         let f = ISO8601DateFormatter()
         f.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        f.timeZone = TimeZone(identifier: "Asia/Shanghai")!
         return f
     }()
 
     private static func formatDate(_ date: Date) -> String {
-        isoFormatter.string(from: date)
+        beijingFormatter.string(from: date)
     }
 
     private static func parseDate(_ string: String?) -> Date? {
         guard let string else { return nil }
-        // 尝试带毫秒格式
-        if let date = isoFormatter.date(from: string) { return date }
-        // 尝试不带毫秒格式
+        if let date = beijingFormatter.date(from: string) { return date }
         let fallback = ISO8601DateFormatter()
         fallback.formatOptions = [.withInternetDateTime]
-        return fallback.date(from: string)
+        fallback.timeZone = TimeZone(identifier: "Asia/Shanghai")!
+        if let date = fallback.date(from: string) { return date }
+        // 兼容无时区后缀的格式
+        let noTz = ISO8601DateFormatter()
+        noTz.formatOptions = [.withInternetDateTime]
+        return noTz.date(from: string)
     }
 
     // MARK: - 下拉（从云端拉取）
@@ -91,6 +95,12 @@ struct SyncService {
         }
         let body = SyncRequest(records: syncRecords)
         return try await APIClient.shared.request("/progress", method: "POST", body: body)
+    }
+
+    // MARK: - 删除
+
+    static func deleteRecord(poemId: UInt64) async throws {
+        let _: EmptyResponse = try await APIClient.shared.request("/progress/\(poemId)", method: "DELETE")
     }
 
     // MARK: - 合并（云端记录覆盖本地）
@@ -141,3 +151,5 @@ struct SyncService {
         )
     }
 }
+
+private struct EmptyResponse: Decodable {}

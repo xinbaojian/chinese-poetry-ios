@@ -120,6 +120,54 @@ struct SettingsView: View {
                     }
 
                     settingsSection("账号与同步") {
+                        if AuthService.isLoggedIn {
+                            HStack {
+                                Text("同步状态")
+                                Spacer()
+                                if SyncManager.shared.isSyncing {
+                                    ProgressView()
+                                        .controlSize(.small)
+                                    Text("同步中...")
+                                        .foregroundStyle(.secondary)
+                                        .font(.subheadline)
+                                } else if SyncManager.shared.lastSyncError != nil {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundStyle(.orange)
+                                    Text("同步失败")
+                                        .foregroundStyle(.secondary)
+                                        .font(.subheadline)
+                                } else if let date = SyncManager.shared.lastSyncDate {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundStyle(.green)
+                                    Text(date.formatted(.relative(presentation: .named)))
+                                        .foregroundStyle(.secondary)
+                                        .font(.subheadline)
+                                } else {
+                                    Text("尚未同步")
+                                        .foregroundStyle(.secondary)
+                                        .font(.subheadline)
+                                }
+                            }
+
+                            Divider()
+
+                            Button {
+                                manualSync()
+                            } label: {
+                                HStack {
+                                    Label("立即同步", systemImage: "arrow.triangle.2.circlepath")
+                                    Spacer()
+                                    if SyncManager.shared.isSyncing {
+                                        ProgressView()
+                                            .controlSize(.small)
+                                    }
+                                }
+                            }
+                            .disabled(SyncManager.shared.isSyncing)
+
+                            Divider()
+                        }
+
                         NavigationLink {
                             ServerConfigView()
                         } label: {
@@ -136,6 +184,14 @@ struct SettingsView: View {
                         Divider()
 
                         if AuthService.isLoggedIn {
+                            NavigationLink {
+                                ChangePasswordView()
+                            } label: {
+                                Label("修改密码", systemImage: "lock.rotation")
+                            }
+
+                            Divider()
+
                             Button("登出", role: .destructive) {
                                 showLogoutAlert = true
                             }
@@ -298,10 +354,28 @@ struct SettingsView: View {
             try BackupService.importData(backup, mode: mode, context: modelContext)
             BackupService.applySettings(backup.settings)
             importSuccess = "成功导入 \(backup.recordCount) 条学习记录"
+            let descriptor = FetchDescriptor<LearningRecord>()
+            if let allRecords = try? modelContext.fetch(descriptor), !allRecords.isEmpty {
+                Task { await SyncManager.shared.sync(records: allRecords) }
+            }
         } catch {
             importError = error.localizedDescription
         }
         pendingImportData = nil
+    }
+
+    private func manualSync() {
+        let descriptor = FetchDescriptor<LearningRecord>()
+        guard let records = try? modelContext.fetch(descriptor) else { return }
+        Task {
+            await SyncManager.shared.sync(records: records)
+            do {
+                let remoteRecords = try await SyncService.fetchAllProgress()
+                try SyncService.mergeRemoteRecords(remoteRecords, into: modelContext)
+            } catch {
+                SyncManager.shared.lastSyncError = error.localizedDescription
+            }
+        }
     }
 }
 

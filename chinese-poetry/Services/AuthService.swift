@@ -10,6 +10,11 @@ struct RegisterRequest: Encodable {
     let password: String
 }
 
+struct ChangePasswordRequest: Encodable {
+    let oldPassword: String
+    let newPassword: String
+}
+
 struct AuthResponse: Decodable {
     let token: String
     let user: UserInfo
@@ -46,7 +51,17 @@ struct AuthService {
         APIClient.shared.token = nil
     }
 
+    static func changePassword(oldPassword: String, newPassword: String) async throws {
+        let _: EmptyResponse = try await APIClient.shared.request(
+            "/auth/password",
+            method: "PUT",
+            body: ChangePasswordRequest(oldPassword: oldPassword, newPassword: newPassword)
+        )
+    }
+
     static var isLoggedIn: Bool {
         APIClient.shared.token != nil
     }
 }
+
+private struct EmptyResponse: Decodable {}

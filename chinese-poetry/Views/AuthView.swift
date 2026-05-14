@@ -159,6 +159,93 @@ struct ServerConfigView: View {
     }
 }
 
+struct ChangePasswordView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var oldPassword = ""
+    @State private var newPassword = ""
+    @State private var confirmPassword = ""
+    @State private var isLoading = false
+    @State private var errorMessage: String?
+    @State private var successMessage: String?
+
+    private var formValid: Bool {
+        oldPassword.count >= 6 && newPassword.count >= 6 && newPassword == confirmPassword && oldPassword != newPassword
+    }
+
+    var body: some View {
+        VStack(spacing: 20) {
+            SecureField("当前密码", text: $oldPassword)
+                .textContentType(.password)
+                .textFieldStyle(.roundedBorder)
+
+            SecureField("新密码", text: $newPassword)
+                .textContentType(.newPassword)
+                .textFieldStyle(.roundedBorder)
+
+            SecureField("确认新密码", text: $confirmPassword)
+                .textContentType(.newPassword)
+                .textFieldStyle(.roundedBorder)
+
+            if !confirmPassword.isEmpty && newPassword != confirmPassword {
+                Text("两次密码输入不一致")
+                    .font(.caption)
+                    .foregroundStyle(.red)
+            }
+
+            if let error = errorMessage {
+                Text(error)
+                    .font(.subheadline)
+                    .foregroundStyle(.red)
+                    .multilineTextAlignment(.center)
+            }
+
+            if let success = successMessage {
+                Text(success)
+                    .font(.subheadline)
+                    .foregroundStyle(.green)
+            }
+
+            Button {
+                isLoading = true
+                errorMessage = nil
+                successMessage = nil
+                Task {
+                    do {
+                        try await AuthService.changePassword(oldPassword: oldPassword, newPassword: newPassword)
+                        successMessage = "密码修改成功"
+                        oldPassword = ""
+                        newPassword = ""
+                        confirmPassword = ""
+                    } catch {
+                        errorMessage = error.localizedDescription
+                    }
+                    isLoading = false
+                }
+            } label: {
+                Group {
+                    if isLoading {
+                        ProgressView().tint(.white)
+                    } else {
+                        Text("修改密码")
+                            .font(.headline)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(formValid ? Color.blue : Color.gray)
+                .foregroundStyle(.white)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            }
+            .disabled(!formValid || isLoading)
+        }
+        .padding()
+        .navigationTitle("修改密码")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
 #Preview {
-    AuthView()
+    NavigationStack {
+        AuthView()
+    }
 }

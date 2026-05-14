@@ -226,7 +226,9 @@ struct ReviewView: View {
                                 }
                                 .swipeActions(edge: .trailing) {
                                     Button(role: .destructive) {
+                                        let poemId = record.poemId
                                         modelContext.delete(record)
+                                        Task { await SyncManager.shared.delete(poemId: poemId) }
                                     } label: {
                                         Label("移出", systemImage: "minus.circle")
                                     }
@@ -325,7 +327,7 @@ struct ReviewView: View {
             reviewCount: record.reviewCount, level: level, from: Date()
         )
         record.updatedAt = Date()
-        Task { try? await SyncService.syncRecords([record]) }
+        Task { await SyncManager.shared.sync(records: [record]) }
     }
 }
 // MARK: - Button Styles

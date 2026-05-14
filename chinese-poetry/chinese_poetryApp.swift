@@ -53,18 +53,20 @@ struct chinese_poetryApp: App {
     private func initialSync() async {
         guard AuthService.isLoggedIn else { return }
         let context = sharedModelContainer.mainContext
+        SyncManager.shared.isSyncing = true
         do {
-            // 先上传本地离线记录
             let descriptor = FetchDescriptor<LearningRecord>()
             let localRecords = try context.fetch(descriptor)
             if !localRecords.isEmpty {
                 _ = try await SyncService.syncRecords(localRecords)
             }
-            // 再拉取云端全量记录合并
             let remoteRecords = try await SyncService.fetchAllProgress()
             try SyncService.mergeRemoteRecords(remoteRecords, into: context)
+            SyncManager.shared.lastSyncDate = Date()
+            UserDefaults.standard.set(Date(), forKey: "lastSyncDate")
         } catch {
-            // 同步失败不阻塞 UI
+            SyncManager.shared.lastSyncError = error.localizedDescription
         }
+        SyncManager.shared.isSyncing = false
     }
 }

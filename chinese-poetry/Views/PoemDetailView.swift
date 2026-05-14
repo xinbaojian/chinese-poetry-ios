@@ -102,13 +102,14 @@ struct PoemDetailView: View {
             nextReviewDate: nextDate, updatedAt: Date()
         )
         modelContext.insert(record)
-        Task { try? await SyncService.syncRecords([record]) }
+        Task { await SyncManager.shared.sync(records: [record]) }
     }
 
     private func removeFromLearning() {
         for record in records where record.poemId == poem.id {
             modelContext.delete(record)
         }
+        Task { await SyncManager.shared.delete(poemId: poem.id) }
     }
 }
 
