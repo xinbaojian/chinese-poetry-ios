@@ -10,6 +10,8 @@ struct AuthView: View {
     @AppStorage("serverBaseURL") private var serverBaseURL = "https://poetry.xiuyuan.xin"
     @State private var showServerConfig = false
 
+    @FocusState private var isFocused: Bool
+
     var body: some View {
         NavigationStack {
                 ScrollView {
@@ -27,12 +29,14 @@ struct AuthView: View {
                             TextField("用户名", text: $username)
                                 .textContentType(.username)
                                 .autocapitalization(.none)
+                                .focused($isFocused)
                                 .padding()
                                 .background(Color(.systemGray6))
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
 
                             SecureField("密码", text: $password)
                                 .textContentType(.password)
+                                .focused($isFocused)
                                 .padding()
                                 .background(Color(.systemGray6))
                                 .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -45,10 +49,8 @@ struct AuthView: View {
                         }
 
                         Button {
-                            isLoading = true
-                            errorMessage = nil
-                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
-                            Task { @MainActor in
+                            isFocused = false
+                            Task {
                                 await submit()
                             }
                         } label: {
@@ -97,6 +99,9 @@ struct AuthView: View {
     }
 
     private func submit() async {
+        isLoading = true
+        errorMessage = nil
+        defer { isLoading = false }
         do {
             if isRegisterMode {
                 _ = try await AuthService.register(username: username, password: password)
@@ -108,7 +113,6 @@ struct AuthView: View {
         } catch {
             errorMessage = error.localizedDescription
         }
-        isLoading = false
     }
 }
 
