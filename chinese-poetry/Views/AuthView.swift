@@ -45,7 +45,12 @@ struct AuthView: View {
                         }
 
                         Button {
-                            Task { await submit() }
+                            isLoading = true
+                            errorMessage = nil
+                            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                            Task { @MainActor in
+                                await submit()
+                            }
                         } label: {
                             if isLoading {
                                 ProgressView()
@@ -92,8 +97,6 @@ struct AuthView: View {
     }
 
     private func submit() async {
-        isLoading = true
-        errorMessage = nil
         do {
             if isRegisterMode {
                 _ = try await AuthService.register(username: username, password: password)

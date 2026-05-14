@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 enum APIError: LocalizedError {
     case invalidResponse
@@ -22,6 +23,7 @@ struct ErrorResponse: Decodable {
 
 class APIClient {
     static let shared = APIClient()
+    private static let logger = Logger(subsystem: "com.poetry.app", category: "API")
 
     private var _token: String?
     var token: String? {
@@ -53,14 +55,17 @@ class APIClient {
             throw APIError.networkError("服务器地址未配置")
         }
 
-        var urlString = "\(baseURL)/api/v1\(path)"
+        var urlString = baseURL.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        urlString += "/api/v1\(path)"
         if !urlString.hasPrefix("http") {
             urlString = "https://\(urlString)"
         }
 
         guard let url = URL(string: urlString) else {
+            Self.logger.error("Invalid URL: \(urlString)")
             throw APIError.networkError("无效的 URL")
         }
+        Self.logger.info("\(method) \(urlString)")
 
         var request = URLRequest(url: url)
         request.httpMethod = method
@@ -81,6 +86,7 @@ class APIClient {
         do {
             (data, response) = try await URLSession.shared.data(for: request)
         } catch {
+            Self.logger.error("Network error: \(error.localizedDescription)")
             throw APIError.networkError(error.localizedDescription)
         }
 
