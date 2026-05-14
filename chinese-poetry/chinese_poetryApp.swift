@@ -16,7 +16,13 @@ struct chinese_poetryApp: App {
         do {
             return try ModelContainer(for: schema, configurations: [config])
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            // schema 变更导致旧库不兼容，删除旧库重建
+            let url = config.url
+            let urls = [url, url.deletingPathExtension().appendingPathExtension("sqlite-wal"), url.deletingPathExtension().appendingPathExtension("sqlite-shm")]
+            for file in urls {
+                try? FileManager.default.removeItem(at: file)
+            }
+            return try! ModelContainer(for: schema, configurations: [config])
         }
     }()
 
