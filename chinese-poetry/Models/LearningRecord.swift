@@ -16,26 +16,38 @@ struct ReviewEntry: Codable, Identifiable {
 
 @Model
 final class LearningRecord {
-    var poemId: String
+    var remoteId: UInt64?
+    var poemId: UInt64
+    var poemTitle: String
+    var poetName: String
     var learnedDate: Date
     var nextReviewDate: Date
     var masteryLevel: MasteryLevel
     var reviewCount: Int
+    var updatedAt: Date
     var reviewHistory: [ReviewEntry]
 
     init(
-        poemId: String,
+        remoteId: UInt64? = nil,
+        poemId: UInt64,
+        poemTitle: String = "",
+        poetName: String = "",
         learnedDate: Date = Date(),
         nextReviewDate: Date,
-        masteryLevel: MasteryLevel = .fair,
+        masteryLevel: MasteryLevel = .learning,
         reviewCount: Int = 0,
+        updatedAt: Date = Date(),
         reviewHistory: [ReviewEntry] = []
     ) {
+        self.remoteId = remoteId
         self.poemId = poemId
+        self.poemTitle = poemTitle
+        self.poetName = poetName
         self.learnedDate = learnedDate
         self.nextReviewDate = nextReviewDate
         self.masteryLevel = masteryLevel
         self.reviewCount = reviewCount
+        self.updatedAt = updatedAt
         self.reviewHistory = reviewHistory
     }
 }

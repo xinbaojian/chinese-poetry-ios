@@ -10,9 +10,10 @@ import Foundation
 struct ReviewEngine {
     static func intervals(for level: MasteryLevel) -> [Int] {
         switch level {
-        case .proficient: [1, 2, 4, 7, 15]
-        case .fair:       [1, 1, 2, 4, 7]
-        case .weak:       [1, 1, 1, 2, 4]
+        case .mastered:  [2, 4, 7, 15, 30]
+        case .reviewing: [1, 2, 4, 7, 15]
+        case .learning:  [1, 1, 2, 4, 7]
+        case .new:       [1, 1, 2, 4, 7]
         }
     }
 

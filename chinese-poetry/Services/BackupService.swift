@@ -23,16 +23,19 @@ enum BackupError: LocalizedError {
 }
 
 struct BackupService {
-    private static let currentVersion = 1
+    private static let currentVersion = 2
 
     static func exportData(records: [LearningRecord], settings: BackupSettings) throws -> Data {
         let backupRecords = records.map { record in
             BackupRecord(
                 poemId: record.poemId,
+                poemTitle: record.poemTitle,
+                poetName: record.poetName,
                 learnedDate: record.learnedDate,
                 nextReviewDate: record.nextReviewDate,
                 masteryLevel: record.masteryLevel,
                 reviewCount: record.reviewCount,
+                updatedAt: record.updatedAt,
                 reviewHistory: record.reviewHistory
             )
         }
@@ -56,10 +59,21 @@ struct BackupService {
     }
 
     static func parseBackup(from data: Data) throws -> BackupData {
+        var mutableData = data
+        if let str = String(data: data, encoding: .utf8) {
+            if str.contains("\"proficient\"") || str.contains("\"fair\"") || str.contains("\"weak\"") {
+                let migrated = str
+                    .replacingOccurrences(of: "\"proficient\"", with: "\"mastered\"")
+                    .replacingOccurrences(of: "\"fair\"", with: "\"learning\"")
+                    .replacingOccurrences(of: "\"weak\"", with: "\"learning\"")
+                mutableData = Data(migrated.utf8)
+            }
+        }
+
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
 
-        guard let backup = try? decoder.decode(BackupData.self, from: data) else {
+        guard let backup = try? decoder.decode(BackupData.self, from: mutableData) else {
             throw BackupError.decodingFailed
         }
 
@@ -72,7 +86,7 @@ struct BackupService {
         }
 
         for record in backup.records {
-            guard !record.poemId.isEmpty, record.poemId.count <= 100 else {
+            guard record.poemId > 0 else {
                 throw BackupError.validationFailed("无效的诗词ID")
             }
             guard record.reviewCount >= 0 else {
@@ -98,7 +112,7 @@ struct BackupService {
 
             for record in backup.records {
                 if let existingRecord = existingMap[record.poemId] {
-                    if record.learnedDate > existingRecord.learnedDate {
+                    if record.updatedAt > existingRecord.updatedAt {
                         context.delete(existingRecord)
                         insertRecord(record, into: context)
                     }
@@ -161,10 +175,13 @@ struct BackupService {
     private static func insertRecord(_ record: BackupRecord, into context: ModelContext) {
         let learningRecord = LearningRecord(
             poemId: record.poemId,
+            poemTitle: record.poemTitle,
+            poetName: record.poetName,
             learnedDate: record.learnedDate,
             nextReviewDate: record.nextReviewDate,
             masteryLevel: record.masteryLevel,
             reviewCount: record.reviewCount,
+            updatedAt: record.updatedAt,
             reviewHistory: record.reviewHistory
         )
         context.insert(learningRecord)

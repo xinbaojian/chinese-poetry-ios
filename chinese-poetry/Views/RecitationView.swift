@@ -48,7 +48,7 @@ struct RecitationView: View {
         VStack(spacing: 4) {
             Text(poem.title)
                 .font(.title2.bold())
-            Text("\(poem.dynasty) · \(poem.author)")
+            Text("\(poem.dynasty) · \(poem.poetName)")
                 .foregroundStyle(.secondary)
         }
     }
@@ -278,7 +278,7 @@ struct RecitationView: View {
         let result = RecitationChecker.check(
             original: poem.paragraphs.joined(),
             recognized: recognizer.recognizedText,
-            headerToSkip: "\(poem.title)\(poem.dynasty)\(poem.author)"
+            headerToSkip: "\(poem.title)\(poem.dynasty)\(poem.poetName)"
         )
         checkResult = result
         phase = .result

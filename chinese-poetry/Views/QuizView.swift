@@ -15,7 +15,7 @@ struct QuizView: View {
 
     private let maxQuestions = 10
 
-    private var poemMap: [String: Poem] {
+    private var poemMap: [UInt64: Poem] {
         Dictionary(uniqueKeysWithValues: poems.map { ($0.id, $0) })
     }
 
@@ -106,7 +106,7 @@ struct QuizView: View {
                             .font(.title.bold())
 
                         if showContent {
-                            Text("\(poem.dynasty) · \(poem.author)")
+                            Text("\(poem.dynasty) · \(poem.poetName)")
                                 .font(.title3)
                                 .foregroundStyle(.secondary)
                         } else {

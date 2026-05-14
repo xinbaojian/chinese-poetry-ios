@@ -14,10 +14,10 @@ struct PoemLibraryView: View {
 
     private let categories = ["唐诗", "宋词"]
 
-    private var learnedIds: Set<String> { Set(records.map(\.poemId)) }
+    private var learnedIds: Set<UInt64> { Set(records.map(\.poemId)) }
 
     private var filteredPoems: [Poem] {
-        var result = poems.sorted { Int($0.id) ?? 0 < Int($1.id) ?? 0 }
+        var result = poems.sorted { $0.id < $1.id }
         if showLearnedOnly {
             result = result.filter { learnedIds.contains($0.id) }
         }
@@ -84,14 +84,14 @@ struct PoemLibraryView: View {
                         ForEach(filteredPoems) { poem in
                             NavigationLink(destination: PoemDetailView(poem: poem)) {
                                 HStack(spacing: 12) {
-                                    Text(poem.id)
+                                    Text("\(poem.id)")
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                         .frame(width: 36, alignment: .leading)
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text(poem.title)
                                             .font(.headline)
-                                        Text("\(poem.dynasty) · \(poem.author)")
+                                        Text("\(poem.dynasty) · \(poem.poetName)")
                                             .font(.subheadline)
                                             .foregroundStyle(.secondary)
                                         Text(poem.paragraphs.first ?? "")
@@ -156,9 +156,13 @@ struct PoemLibraryView: View {
 
     private func addToLearning(_ poem: Poem) {
         let engine = ReviewEngine()
-        let nextDate = engine.calculateNextReviewDate(reviewCount: 0, level: .fair, from: Date())
-        let record = LearningRecord(poemId: poem.id, nextReviewDate: nextDate)
+        let nextDate = engine.calculateNextReviewDate(reviewCount: 0, level: .learning, from: Date())
+        let record = LearningRecord(
+            poemId: poem.id, poemTitle: poem.title, poetName: poem.poetName,
+            nextReviewDate: nextDate, updatedAt: Date()
+        )
         modelContext.insert(record)
+        Task { try? await SyncService.syncRecords([record]) }
     }
 
     private func removeFromLearning(_ poem: Poem) {

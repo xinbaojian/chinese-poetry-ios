@@ -12,6 +12,7 @@ struct SettingsView: View {
     @AppStorage("reminderEnabled") private var reminderEnabled = false
     @AppStorage("reminderHour") private var reminderHour = 9
     @AppStorage("reminderMinute") private var reminderMinute = 0
+    @AppStorage("serverBaseURL") private var serverBaseURL = "https://poetry.xiuyuan.xin"
     @State private var showResetAlert = false
     @State private var showExportSheet = false
     @State private var showImportPicker = false
@@ -21,6 +22,7 @@ struct SettingsView: View {
     @State private var exportError: String?
     @State private var importError: String?
     @State private var importSuccess: String?
+    @State private var showLogoutAlert = false
 
     private var reminderDate: Date {
         get {
@@ -116,6 +118,33 @@ struct SettingsView: View {
                             showResetAlert = true
                         }
                     }
+
+                    settingsSection("账号与同步") {
+                        NavigationLink {
+                            ServerConfigView()
+                        } label: {
+                            HStack {
+                                Text("服务器地址")
+                                Spacer()
+                                Text(serverBaseURL.isEmpty ? "未配置" : serverBaseURL)
+                                    .foregroundStyle(.secondary)
+                                    .font(.subheadline)
+                                    .lineLimit(1)
+                            }
+                        }
+
+                        Divider()
+
+                        if AuthService.isLoggedIn {
+                            Button("登出", role: .destructive) {
+                                showLogoutAlert = true
+                            }
+                        } else if !serverBaseURL.isEmpty {
+                            NavigationLink("去登录") {
+                                AuthView()
+                            }
+                        }
+                    }
                 }
                 .padding()
                 .padding(.bottom, 60)
@@ -157,6 +186,15 @@ struct SettingsView: View {
                 Button("确定") { importSuccess = nil }
             } message: {
                 Text(importSuccess ?? "")
+            }
+            .alert("确认登出？", isPresented: $showLogoutAlert) {
+                Button("登出", role: .destructive) {
+                    AuthService.logout()
+                    UserDefaults.standard.set(false, forKey: "isLoggedIn")
+                }
+                Button("取消", role: .cancel) {}
+            } message: {
+                Text("登出后本地学习记录会保留，下次登录时可重新同步。")
             }
             .fileExporter(
                 isPresented: $showExportSheet,

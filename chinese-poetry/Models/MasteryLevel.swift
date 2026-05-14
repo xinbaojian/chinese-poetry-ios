@@ -7,8 +7,9 @@
 
 import Foundation
 
-enum MasteryLevel: String, Codable {
-    case proficient    // 熟练
-    case fair          // 一般
-    case weak          // 不熟练
+enum MasteryLevel: String, Codable, CaseIterable {
+    case new        // 未学
+    case learning   // 学习中
+    case reviewing  // 复习中
+    case mastered   // 已掌握
 }

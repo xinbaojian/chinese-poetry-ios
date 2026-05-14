@@ -90,7 +90,7 @@ struct LearnView: View {
                             VStack(spacing: 4) {
                                 Text(poem.title)
                                     .font(.title.bold())
-                                Text("\(poem.dynasty) · \(poem.author)")
+                                Text("\(poem.dynasty) · \(poem.poetName)")
                                     .foregroundStyle(.secondary)
                             }
 
@@ -174,9 +174,11 @@ struct LearnView: View {
             reviewCount: 0, level: level, from: Date()
         )
         let record = LearningRecord(
-            poemId: poem.id, nextReviewDate: nextDate, masteryLevel: level
+            poemId: poem.id, poemTitle: poem.title, poetName: poem.poetName,
+            nextReviewDate: nextDate, masteryLevel: level, updatedAt: Date()
         )
         modelContext.insert(record)
+        Task { try? await SyncService.syncRecords([record]) }
     }
 }
 
@@ -193,7 +195,7 @@ struct MasteryPicker: View {
                     .font(.title3)
                     .foregroundStyle(.secondary)
 
-                Button { onSelect(.proficient) } label: {
+                Button { onSelect(.mastered) } label: {
                     Label("熟练 — 很流利！", systemImage: "star.fill")
                         .font(.headline)
                         .frame(maxWidth: .infinity)
@@ -203,7 +205,7 @@ struct MasteryPicker: View {
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
 
-                Button { onSelect(.fair) } label: {
+                Button { onSelect(.learning) } label: {
                     Label("一般 — 有些卡壳", systemImage: "star.leadinghalf.filled")
                         .font(.headline)
                         .frame(maxWidth: .infinity)
@@ -213,7 +215,7 @@ struct MasteryPicker: View {
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
 
-                Button { onSelect(.weak) } label: {
+                Button { onSelect(.learning) } label: {
                     Label("不熟练 — 需要多练", systemImage: "star")
                         .font(.headline)
                         .frame(maxWidth: .infinity)

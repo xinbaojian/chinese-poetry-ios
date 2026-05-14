@@ -25,7 +25,7 @@ struct PoemDetailView: View {
                 VStack(spacing: 4) {
                     Text(poem.title)
                         .font(.title.bold())
-                    Text("\(poem.dynasty) · \(poem.author)")
+                    Text("\(poem.dynasty) · \(poem.poetName)")
                         .font(.title3)
                         .foregroundStyle(.secondary)
                 }
@@ -95,10 +95,14 @@ struct PoemDetailView: View {
     private func addToLearning() {
         let engine = ReviewEngine()
         let nextDate = engine.calculateNextReviewDate(
-            reviewCount: 0, level: .fair, from: Date()
+            reviewCount: 0, level: .learning, from: Date()
         )
-        let record = LearningRecord(poemId: poem.id, nextReviewDate: nextDate)
+        let record = LearningRecord(
+            poemId: poem.id, poemTitle: poem.title, poetName: poem.poetName,
+            nextReviewDate: nextDate, updatedAt: Date()
+        )
         modelContext.insert(record)
+        Task { try? await SyncService.syncRecords([record]) }
     }
 
     private func removeFromLearning() {
@@ -111,9 +115,9 @@ struct PoemDetailView: View {
 #Preview {
     NavigationStack {
         PoemDetailView(poem: Poem(
-            id: "1", title: "静夜思", author: "李白",
+            id: 1, title: "静夜思", poetName: "李白",
             dynasty: "唐", category: "唐诗", grade: 1,
-            paragraphs: ["床前明月光，疑是地上霜。", "举头望明月，低头思故乡。"],
+            content: "[\"床前明月光，疑是地上霜。\",\"举头望明月，低头思故乡。\"]",
             translation: "明亮的月光洒在床前..."
         ))
     }

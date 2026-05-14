@@ -39,9 +39,10 @@ struct ReviewView: View {
 
     private func masteryOrder(_ level: MasteryLevel) -> Int {
         switch level {
-        case .weak: 0
-        case .fair: 1
-        case .proficient: 2
+        case .new: 0
+        case .learning: 1
+        case .reviewing: 2
+        case .mastered: 3
         }
     }
 
@@ -50,7 +51,7 @@ struct ReviewView: View {
             .sorted { $0.nextReviewDate < $1.nextReviewDate }
     }
 
-    private var poemMap: [String: Poem] {
+    private var poemMap: [UInt64: Poem] {
         Dictionary(uniqueKeysWithValues: poems.map { ($0.id, $0) })
     }
 
@@ -165,7 +166,7 @@ struct ReviewView: View {
                     VStack(spacing: 4) {
                         Text(poem.title)
                             .font(.title.bold())
-                        Text("\(poem.dynasty) · \(poem.author)")
+                        Text("\(poem.dynasty) · \(poem.poetName)")
                             .foregroundStyle(.secondary)
                     }
 
@@ -206,7 +207,7 @@ struct ReviewView: View {
                                     VStack(alignment: .leading, spacing: 4) {
                                         Text(poem.title)
                                             .font(.headline)
-                                        Text("\(poem.dynasty) · \(poem.author)")
+                                        Text("\(poem.dynasty) · \(poem.poetName)")
                                             .font(.subheadline)
                                             .foregroundStyle(.secondary)
                                         HStack(spacing: 8) {
@@ -282,25 +283,28 @@ struct ReviewView: View {
 
     private func masteryText(_ level: MasteryLevel) -> String {
         switch level {
-        case .proficient: "熟练"
-        case .fair: "一般"
-        case .weak: "不熟练"
+        case .new: "未学"
+        case .learning: "学习中"
+        case .reviewing: "复习中"
+        case .mastered: "已掌握"
         }
     }
 
     private func masteryIcon(_ level: MasteryLevel) -> String {
         switch level {
-        case .proficient: "star.fill"
-        case .fair: "star.leadinghalf.filled"
-        case .weak: "star"
+        case .new: "circle"
+        case .learning: "star"
+        case .reviewing: "star.leadinghalf.filled"
+        case .mastered: "star.fill"
         }
     }
 
     private func masteryColor(_ level: MasteryLevel) -> Color {
         switch level {
-        case .proficient: .green
-        case .fair: .orange
-        case .weak: .red
+        case .new: .gray
+        case .learning: .red
+        case .reviewing: .orange
+        case .mastered: .green
         }
     }
 
@@ -320,6 +324,8 @@ struct ReviewView: View {
         record.nextReviewDate = engine.calculateNextReviewDate(
             reviewCount: record.reviewCount, level: level, from: Date()
         )
+        record.updatedAt = Date()
+        Task { try? await SyncService.syncRecords([record]) }
     }
 }
 // MARK: - Button Styles
