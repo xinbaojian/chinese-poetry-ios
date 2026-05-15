@@ -245,8 +245,9 @@ struct SettingsView: View {
             }
             .alert("确认登出？", isPresented: $showLogoutAlert) {
                 Button("登出", role: .destructive) {
-                    AuthService.logout()
-                    UserDefaults.standard.set(false, forKey: "isLoggedIn")
+                    Task {
+                        await AuthService.logout()
+                    }
                 }
                 Button("取消", role: .cancel) {}
             } message: {

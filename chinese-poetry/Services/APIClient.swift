@@ -21,6 +21,10 @@ struct ErrorResponse: Decodable {
     let error: String
 }
 
+struct RefreshRequest: Encodable {
+    let refreshToken: String
+}
+
 class APIClient {
     static let shared = APIClient()
     private static let logger = Logger(subsystem: "com.poetry.app", category: "API")
@@ -38,53 +42,63 @@ class APIClient {
         }
     }
 
+    private var _refreshToken: String?
+    var refreshToken: String? {
+        get { _refreshToken }
+        set {
+            _refreshToken = newValue
+            if let newValue {
+                KeychainHelper.saveRefreshToken(newValue)
+            } else {
+                KeychainHelper.deleteRefreshToken()
+            }
+        }
+    }
+
     var baseURL: String {
         UserDefaults.standard.string(forKey: "serverBaseURL") ?? "https://poetry.xiuyuan.xin"
     }
 
+    /// 并发刷新时复用同一个 Task，避免多个请求同时触发刷新
+    private var refreshTask: Task<AuthResponse, Error>?
+
     private init() {
         _token = KeychainHelper.loadToken()
+        _refreshToken = KeychainHelper.loadRefreshToken()
     }
 
     func request<T: Decodable>(
         _ path: String,
         method: String = "GET",
-        body: (any Encodable)? = nil
+        body: (any Encodable)? = nil,
+        retry: Bool = true
     ) async throws -> T {
         guard !baseURL.isEmpty else {
             throw APIError.networkError("服务器地址未配置")
         }
 
-        var urlString = baseURL.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
-        urlString += "/api/v1\(path)"
-        if !urlString.hasPrefix("http") {
-            urlString = "https://\(urlString)"
-        }
+        let url = try buildURL(path)
 
-        guard let url = URL(string: urlString) else {
-            Self.logger.error("Invalid URL: \(urlString)")
-            throw APIError.networkError("无效的 URL")
-        }
-        Self.logger.info("\(method) \(urlString)")
-
-        var request = URLRequest(url: url)
-        request.httpMethod = method
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.timeoutInterval = 15
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = method
+        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        urlRequest.timeoutInterval = 15
 
         if let token = _token {
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            urlRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
 
         if let body {
             let encoder = JSONEncoder()
             encoder.keyEncodingStrategy = .convertToSnakeCase
-            request.httpBody = try encoder.encode(AnyEncodable(body))
+            urlRequest.httpBody = try encoder.encode(AnyEncodable(body))
         }
+
+        Self.logger.info("\(method) \(url.absoluteString)")
 
         let (data, response): (Data, URLResponse)
         do {
-            (data, response) = try await URLSession.shared.data(for: request)
+            (data, response) = try await URLSession.shared.data(for: urlRequest)
         } catch {
             Self.logger.error("Network error: \(error.localizedDescription)")
             throw APIError.networkError(error.localizedDescription)
@@ -94,10 +108,16 @@ class APIClient {
             throw APIError.invalidResponse
         }
 
-        if http.statusCode == 401 {
-            token = nil
-            UserDefaults.standard.set(false, forKey: "isLoggedIn")
-            throw APIError.unauthorized
+        // 401 且有 refresh_token：尝试刷新后重试
+        if http.statusCode == 401 && retry {
+            if let refreshed = try? await refreshTokens() {
+                token = refreshed.token
+                refreshToken = refreshed.refreshToken
+                return try await request(path, method: method, body: body, retry: false)
+            } else {
+                clearAuth()
+                throw APIError.unauthorized
+            }
         }
 
         if !(200...299).contains(http.statusCode) {
@@ -106,6 +126,66 @@ class APIClient {
         }
 
         return try JSONDecoder().decode(T.self, from: data)
+    }
+
+    private func buildURL(_ path: String) throws -> URL {
+        var urlString = baseURL.trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+        urlString += "/api/v1\(path)"
+        if !urlString.hasPrefix("http") {
+            urlString = "https://\(urlString)"
+        }
+        guard let url = URL(string: urlString) else {
+            Self.logger.error("Invalid URL: \(urlString)")
+            throw APIError.networkError("无效的 URL")
+        }
+        return url
+    }
+
+    /// 刷新令牌，并发请求复用同一个 Task
+    private func refreshTokens() async throws -> AuthResponse {
+        if let existing = refreshTask {
+            return try await existing.value
+        }
+
+        guard let rt = _refreshToken else {
+            throw APIError.unauthorized
+        }
+
+        let task = Task<AuthResponse, Error> { [self] in
+            let url = try buildURL("/auth/refresh")
+            var urlRequest = URLRequest(url: url)
+            urlRequest.httpMethod = "POST"
+            urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            urlRequest.timeoutInterval = 15
+            let encoder = JSONEncoder()
+            encoder.keyEncodingStrategy = .convertToSnakeCase
+            urlRequest.httpBody = try encoder.encode(RefreshRequest(refreshToken: rt))
+
+            let (data, response): (Data, URLResponse)
+            do {
+                (data, response) = try await URLSession.shared.data(for: urlRequest)
+            } catch {
+                throw APIError.unauthorized
+            }
+
+            guard let http = response as? HTTPURLResponse,
+                  (200...299).contains(http.statusCode) else {
+                throw APIError.unauthorized
+            }
+
+            return try JSONDecoder().decode(AuthResponse.self, from: data)
+        }
+
+        refreshTask = task
+        defer { refreshTask = nil }
+        return try await task.value
+    }
+
+    /// 清除认证状态
+    func clearAuth() {
+        token = nil
+        refreshToken = nil
+        UserDefaults.standard.set(false, forKey: "isLoggedIn")
     }
 }
 

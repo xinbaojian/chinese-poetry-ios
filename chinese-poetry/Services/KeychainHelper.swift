@@ -3,10 +3,48 @@ import Security
 
 struct KeychainHelper {
     private static let service = "com.poetry.app"
-    private static let account = "auth_token"
+    private static let tokenAccount = "auth_token"
+    private static let refreshTokenAccount = "refresh_token"
+
+    // MARK: - Access Token
 
     static func save(token: String) {
-        guard let data = token.data(using: .utf8) else { return }
+        save(token, account: tokenAccount)
+    }
+
+    static func loadToken() -> String? {
+        load(account: tokenAccount)
+    }
+
+    static func deleteToken() {
+        delete(account: tokenAccount)
+    }
+
+    // MARK: - Refresh Token
+
+    static func saveRefreshToken(_ token: String) {
+        save(token, account: refreshTokenAccount)
+    }
+
+    static func loadRefreshToken() -> String? {
+        load(account: refreshTokenAccount)
+    }
+
+    static func deleteRefreshToken() {
+        delete(account: refreshTokenAccount)
+    }
+
+    // MARK: - Clear All
+
+    static func deleteAll() {
+        deleteToken()
+        deleteRefreshToken()
+    }
+
+    // MARK: - Private
+
+    private static func save(_ value: String, account: String) {
+        guard let data = value.data(using: .utf8) else { return }
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -17,7 +55,7 @@ struct KeychainHelper {
         SecItemAdd(query as CFDictionary, nil)
     }
 
-    static func loadToken() -> String? {
+    private static func load(account: String) -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
@@ -34,7 +72,7 @@ struct KeychainHelper {
         return token
     }
 
-    static func deleteToken() {
+    private static func delete(account: String) {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
