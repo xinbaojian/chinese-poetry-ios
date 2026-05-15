@@ -139,7 +139,7 @@ struct SettingsView: View {
                                 } else if let date = SyncManager.shared.lastSyncDate {
                                     Image(systemName: "checkmark.circle.fill")
                                         .foregroundStyle(.green)
-                                    Text(date.formatted(.relative(presentation: .named)))
+                                    Text(relativeTimeString(from: date))
                                         .foregroundStyle(.secondary)
                                         .font(.subheadline)
                                 } else {
@@ -375,6 +375,18 @@ struct SettingsView: View {
             } catch {
                 SyncManager.shared.lastSyncError = error.localizedDescription
             }
+        }
+    }
+
+    private func relativeTimeString(from date: Date) -> String {
+        let seconds = Int(Date().timeIntervalSince(date))
+        switch seconds {
+        case ..<0: return "刚刚"
+        case 0..<60: return "\(seconds)秒前"
+        case 60..<3600: return "\(seconds / 60)分钟前"
+        case 3600..<86400: return "\(seconds / 3600)小时前"
+        case 86400..<604800: return "\(seconds / 86400)天前"
+        default: return date.formatted(.dateTime.year().month().day())
         }
     }
 }
