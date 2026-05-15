@@ -19,6 +19,12 @@ struct AuthResponse: Decodable {
     let token: String
     let refreshToken: String
     let user: UserInfo
+
+    enum CodingKeys: String, CodingKey {
+        case token
+        case refreshToken = "refresh_token"
+        case user
+    }
 }
 
 struct UserInfo: Decodable {
