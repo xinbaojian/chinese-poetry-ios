@@ -65,10 +65,11 @@ struct SyncService {
         fallback.formatOptions = [.withInternetDateTime]
         fallback.timeZone = TimeZone(identifier: "Asia/Shanghai")!
         if let date = fallback.date(from: string) { return date }
-        // 兼容无时区后缀的格式
-        let noTz = ISO8601DateFormatter()
-        noTz.formatOptions = [.withInternetDateTime]
-        return noTz.date(from: string)
+        // 兼容无时区后缀的格式（服务器 DATE_FORMAT 输出）
+        let serverFormatter = DateFormatter()
+        serverFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
+        serverFormatter.timeZone = TimeZone(identifier: "Asia/Shanghai")!
+        return serverFormatter.date(from: string)
     }
 
     // MARK: - 下拉（从云端拉取）
